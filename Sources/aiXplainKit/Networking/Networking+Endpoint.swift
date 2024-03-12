@@ -7,16 +7,16 @@
 
 import Foundation
 
-///This extension adds the default endpoints called by the SDK
-extension Networking{
-    //TODO: Documentation
-    enum Endpoint{
-        case model(modelID:String)
+/// This extension adds the default endpoints called by the SDK
+extension Networking {
+    // TODO: Documentation
+    enum Endpoint {
+        case model(modelID: String)
         case function
-        case fileUpload(istemporary:Bool)
-        case execute(modelID:String)
-        
-        var path:String{
+        case fileUpload(istemporary: Bool)
+        case execute(modelID: String)
+
+        var path: String {
             switch self {
             case .model(let modelID):
                 return "/sdk/models/\(modelID)"
@@ -29,6 +29,5 @@ extension Networking{
             }
         }
     }
-    
-    
+
 }

@@ -25,13 +25,12 @@ public class Networking {
         for (header, value) in headers {
             request.setValue(value, forHTTPHeaderField: header)
         }
-        
-        //TODO: Add a logging function here to print the url request
+
+        // TODO: Add a logging function here to print the url request
 
         return try await URLSession.shared.data(for: request)
     }
-        
-    
+
     /// Posts data to the specified URL using the POST method.
     ///
     /// - Parameters:
@@ -46,18 +45,17 @@ public class Networking {
         request.httpMethod = "POST"
         request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
         request.timeoutInterval = 10
-        
+
         for (header, value) in headers {
             request.setValue(value, forHTTPHeaderField: header)
         }
-        
+
         if let body = body {
             request.httpBody = body
         }
-        
+
         // TODO: Add a logging function here to print the url request
         return try await URLSession.shared.data(for: request)
     }
-    
-}
 
+}

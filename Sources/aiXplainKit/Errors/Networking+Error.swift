@@ -10,7 +10,7 @@ import Foundation
 enum NetworkingError: Error {
     /// An invalid status code was received from the network request.
     case invalidStatusCode(statusCode: Int)
-    
+
     /// The provided URL is malformed.
     case invalidURL(url: String?)
 

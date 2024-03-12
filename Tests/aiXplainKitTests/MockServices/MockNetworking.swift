@@ -8,12 +8,12 @@
 import Foundation
 @testable import aiXplainKit
 
-final class MockNetworking:Networking{
-    
-    var getReturnValue:(Data, URLResponse) = (Data(), URLResponse())
-    
-    override func get(url: URL, headers: [String : String]) async throws -> (Data, URLResponse) {
+final class MockNetworking: Networking {
+
+    var getReturnValue: (Data, URLResponse) = (Data(), URLResponse())
+
+    override func get(url: URL, headers: [String: String]) async throws -> (Data, URLResponse) {
         getReturnValue
     }
-    
+
 }

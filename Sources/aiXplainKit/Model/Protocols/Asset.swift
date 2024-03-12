@@ -8,37 +8,37 @@
 import Foundation
 
 /// A protocol defining the basic information for an asset
-protocol Asset{
+protocol Asset {
     /// The unique identifier of the asset.
-    var id:String { get }
-    
+    var id: String { get }
+
     /// The name of the asset.
-    var name:String { get }
-    
+    var name: String { get }
+
     /// A description of the asset's purpose and functionality.
-    var description:String { get }
-    
+    var description: String { get }
+
     /// The supplier of the asset, providing information about its source.
-    var supplier:Supplier { get }
-    
+    var supplier: Supplier { get }
+
     /// The version of the asset.
-    var version:String {get}
-    
+    var version: String {get}
+
     /// The license information associated with the asset, if applicable.
-    var license:License? { get }
-    
+    var license: License? { get }
+
     /// The privacy level of the asset.
-    var privacy:Privacy? { get }
-    
+    var privacy: Privacy? { get }
+
     /// The pricing information for using the asset.
-    var pricing:Pricing { get }
+    var pricing: Pricing { get }
 }
 
 /// A protocol for assets that can be encoded and decoded using the `Codable` protocol.
-protocol CodableAsset:Asset,Codable {}
+protocol CodableAsset: Asset, Codable {}
 
 /// A protocol for assets that can be encoded using the `Encodable` protocol.
-protocol EncodableAsset:Asset,Encodable {}
+protocol EncodableAsset: Asset, Encodable {}
 
 /// A protocol for assets that can be decoded using the `Decodable` protocol.
-protocol DecodableAsset:Asset,Decodable {}
+protocol DecodableAsset: Asset, Decodable {}

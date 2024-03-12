@@ -9,52 +9,51 @@ import XCTest
 @testable import aiXplainKit
 
 final class NetworkingTests: XCTestCase {
-    
-    
+
     override func tearDownWithError() throws {
         AiXplainKit.shared.keyManager.clear()
     }
 
-    func test_buildHeaders_correctly(){
+    func test_buildHeaders_correctly() {
         AiXplainKit.shared.keyManager.TEAM_API_KEY = "-"
         let network = Networking()
-        
+
         var headers = try? network.buildHeader()
-        
+
         XCTAssertEqual(headers, ["Authorization": "Token -", "Content-Type": "application/json"])
-        
+
         AiXplainKit.shared.keyManager.TEAM_API_KEY = nil
         AiXplainKit.shared.keyManager.TEAM_API_KEY = "-"
-        
+
         XCTAssertEqual(headers, ["Authorization": "Token -", "Content-Type": "application/json"])
-        
+
     }
-    
-    func test_buildHeaders_MissingKeysError(){
+
+    func test_buildHeaders_MissingKeysError() {
         let network = Networking()
-        do{
+        do {
             _ = try network.buildHeader()
-        }catch{
+        } catch {
             XCTAssertTrue(error as! ModelError == ModelError.missingAPIKey)
         }
     }
-    
-    func test_buildHeaders_MissingBackendError(){
+
+    func test_buildHeaders_MissingBackendError() {
         AiXplainKit.shared.keyManager.BACKEND_URL = nil
         let network = Networking()
-        
-        do{
+
+        do {
             _ = try network.buildUrl(for: .function)
-        }catch{
+        } catch {
             XCTAssertTrue(error as! ModelError == ModelError.missingBackendURL)
         }
-        
-        do{
+
+        do {
             _ = try network.buildUrl(for: .model(modelID: "123"))
-        }catch{
+        } catch {
             XCTAssertTrue(error as! ModelError == ModelError.missingBackendURL)
         }
-        
+
     }
 
 }

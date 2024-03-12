@@ -7,28 +7,27 @@
 
 import Foundation
 
-//TODO: Documentation
-public protocol ModelInput{
+// TODO: Documentation
+public protocol ModelInput {
     func generateInputPayloadForModel() -> Data
 }
 
-//MARK: Foundation Types as Input
+// MARK: Foundation Types as Input
 
-extension String:ModelInput{
+extension String: ModelInput {
     public func generateInputPayloadForModel() -> Data {
         let payload = ["data": self]
-        
+
         guard let jsonData = try? JSONSerialization.data(withJSONObject: payload, options: []) else {
-            //TODO: Handle error case if JSON serialization fails
+            // TODO: Handle error case if JSON serialization fails
             return Data()
         }
-        
+
         return jsonData
     }
 }
 
-
-extension URL:ModelInput{
+extension URL: ModelInput {
     public func generateInputPayloadForModel() -> Data {
         return Data()
     }

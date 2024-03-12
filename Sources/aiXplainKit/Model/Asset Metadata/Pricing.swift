@@ -29,7 +29,5 @@ public struct Pricing: Codable {
         self.unitType = unitType
         self.unitScale = unitScale
     }
-    
-    
-    
+
 }
