@@ -6,7 +6,12 @@ import PackageDescription
 let package = Package(
     name: "aiXplainKit",
     platforms: [
-        .iOS(.v15) // Specify iOS 15 as the minimum supported platform
+        .iOS(.v15),
+        .macOS(.v12),
+        .watchOS(.v8),
+        .tvOS(.v15),
+        .visionOS(.v1),
+        .driverKit(.v20)
       ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
