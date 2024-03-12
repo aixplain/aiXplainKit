@@ -9,6 +9,9 @@ import Foundation
 
 /// A class responsible for fetching model information from the backend.
 public final class ModelProvider {
+
+    private let logger = ParrotLogger(category: "AiXplainKit | ModelProvider")
+
     var networking = Networking()
 
     public init() {
@@ -32,7 +35,7 @@ public final class ModelProvider {
             throw ModelError.missingBackendURL
         }
 
-        let endpoint = Networking.Endpoint.model(modelID: modelID)
+        let endpoint = Networking.Endpoint.model(modelIdentifier: modelID)
         guard let url = URL(string: url.absoluteString + endpoint.path) else {
             throw ModelError.invalidURL(url: url.absoluteString + endpoint.path)
         }
@@ -45,12 +48,13 @@ public final class ModelProvider {
         }
 
         do {
-            // TODO: Add a logging function here
-//            print(String(data: response.0, encoding: .utf8))
+            logger.debug(String(data: response.0, encoding: .utf8)!)
             let fetchedModel = try JSONDecoder().decode(Model.self, from: response.0)
+
+            logger.info("\(fetchedModel.name) fetched")
             return fetchedModel
         } catch {
-            print(error.localizedDescription)
+            logger.error(String(describing: error))
             throw error
         }
 
@@ -66,7 +70,7 @@ public final class ModelProvider {
             throw ModelError.missingBackendURL
         }
 
-        let endpoint = Networking.Endpoint.function
+        let endpoint = Networking.Endpoint.functionEndpoint
         guard let url = URL(string: url.absoluteString + endpoint.path) else {
             throw ModelError.invalidURL(url: url.absoluteString + endpoint.path)
         }

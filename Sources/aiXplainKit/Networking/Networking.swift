@@ -10,6 +10,8 @@ import Foundation
 /// A class responsible for making network requests.
 public class Networking {
 
+    private let logger = ParrotLogger(category: "AiXplainKit | Networking")
+
     /// Fetches data from the specified URL using the GET method.
     /// - Parameters:
     ///   - url: The URL of the resource to fetch data from.
@@ -26,8 +28,7 @@ public class Networking {
             request.setValue(value, forHTTPHeaderField: header)
         }
 
-        // TODO: Add a logging function here to print the url request
-
+        logger.debug("GET request to \(url)")
         return try await URLSession.shared.data(for: request)
     }
 
@@ -54,7 +55,7 @@ public class Networking {
             request.httpBody = body
         }
 
-        // TODO: Add a logging function here to print the url request
+        logger.debug("GET request to \(url)")
         return try await URLSession.shared.data(for: request)
     }
 

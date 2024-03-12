@@ -33,8 +33,10 @@ public final class Model: DecodableAsset {
         /// Information about the model's pricing.
         let pricing: Pricing
 
-        // TODO: Write Docs
+        /// The networking service is responsible for making API calls and handling URL sessions.
         var networking: Networking = Networking()
+
+        private let logger: ParrotLogger
 
         // MARK: - Initialization
 
@@ -55,6 +57,8 @@ public final class Model: DecodableAsset {
 
             privacy = nil
             license = nil
+
+             logger = ParrotLogger(category: "AiXplainKit | Model(\(name)")
         }
 
         /// Creates a new `MLModel` instance with the provided parameters.
@@ -76,6 +80,7 @@ public final class Model: DecodableAsset {
             self.license = license
             self.privacy = privacy
             self.pricing = pricing
+            self.logger = ParrotLogger(category: "AiXplainKit | Model(\(name))")
         }
 
     // Private enum for coding keys to improve readability and maintainability.
@@ -88,9 +93,7 @@ public final class Model: DecodableAsset {
 // MARK: - Model Execution
 
 extension Model {
-    // TODO: Implement cl0sures and async run for the model
     // TODO: Implement Other types as input
-    // TODO: Implement logging
     // Runs the model with the provided input and parameters.
        /// - Parameters:
        ///   - modelInput: The input data for the model.
@@ -123,7 +126,7 @@ extension Model {
             guard let pollingURL = decodedResponse.pollingURL else {
                 throw ModelError.failToDecodeRunResponse
             }
-
+            logger.info("Successfully created a execution")
             return try await polling(from: pollingURL)
 
         } catch {
@@ -144,16 +147,17 @@ extension Model {
 
         var itr = 0
 
+        logger.info("Starting polling job")
         repeat {
             let response = try await networking.get(url: url, headers: headers)
 
-            // TODO: Logging here
-            print("(\(itr)/\(maxRetry))Polling...")
+            logger.debug("(\(itr)/\(maxRetry))Polling...")
             if let json = try? JSONSerialization.jsonObject(with: response.0, options: []) as? [String: Any],
               let completed = json["completed"] as? Bool {
                 if completed {
                     do {
                         let decodedResponse = try JSONDecoder().decode(ModelOutput.self, from: response.0)
+                        logger.info("Polling job finished.")
                         return decodedResponse
                     } catch {
                         throw ModelError.failToDecodeModelOutputDuringPollingPhase(error: String(describing: error))

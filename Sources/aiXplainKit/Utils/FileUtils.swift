@@ -19,7 +19,7 @@ internal final class FileUtils {
             throw ModelError.missingBackendURL
         }
 
-        let endpoint = Networking.Endpoint.fileUpload(istemporary: isTemporaryFile)
+        let endpoint = Networking.Endpoint.fileUpload(isTemporary: isTemporaryFile)
         guard let url = URL(string: url.absoluteString + endpoint.path) else {
             throw NetworkingError.invalidURL(url: url.absoluteString + endpoint.path)
         }
