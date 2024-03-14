@@ -93,7 +93,6 @@ public final class Model: DecodableAsset {
 // MARK: - Model Execution
 
 extension Model {
-    // TODO: Implement Other types as input
     // Runs the model with the provided input and parameters.
        /// - Parameters:
        ///   - modelInput: The input data for the model.

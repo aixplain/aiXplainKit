@@ -17,7 +17,7 @@ enum ModelError: Error, Equatable {
     /// This error is thrown when the model is polling the response for the job created at `Model.run` did not receive a response/output in the desired time.
     case pollingTimeoutOnModelResponse(pollingURL: URL)
 
-    /// Fail to decode ModelOutput during the polling phase. TODO: Make it Shorter
+    /// Fail to decode ModelOutput during the polling phase. 
     case failToDecodeModelOutputDuringPollingPhase(error: String?)
 
     /// Error reported by the supplier or service.

@@ -22,7 +22,6 @@ public final class ModelProvider {
         self.networking = networking
     }
 
-    // TODO: Improve the documentation on erros after everything is done | Check if a API key is need it
     /// Fetches and prints details of the model with the provided ID.
     /// - Parameter modelID: The unique identifier of the model to fetch.
     /// - Throws: `ModelError` if there are issues with API keys, URL construction, or decoding the response.
