@@ -1,10 +1,3 @@
-//
-//  ModelError.swift
-//
-//
-//  Created by Joao Pedro Monteiro Maia on 05/03/24.
-//
-
 import Foundation
 
 /// Errors related to model interactions.
@@ -27,6 +20,9 @@ enum ModelError: Error, Equatable {
     /// Fail to decode ModelOutput during the polling phase. TODO: Make it Shorter
     case failToDecodeModelOutputDuringPollingPhase(error: String?)
 
+    /// Error reported by the supplier or service.
+    case supplierError(error: String)
+
     var localizedDescription: String {
         switch self {
         case .missingAPIKey:
@@ -42,6 +38,8 @@ enum ModelError: Error, Equatable {
             return "The model did not respond with the output within the expected time during the polling phase. You can try to get the data by the following URL: \(pollingURL.absoluteString)"
         case .failToDecodeModelOutputDuringPollingPhase(error: let error):
             return "An error occurred while decoding the model output during the polling phase." + (error.map { " Details: \($0)" } ?? "")
+        case .supplierError(let error):
+            return "An error ocurred from the suplier side: \(error)."
         }
     }
 }

@@ -34,8 +34,8 @@ extension Networking {
             case .functionEndpoint:
                 return "/sdk/functions"
             case .fileUpload(let isTemporary):
-                let temporaryUploadPath = "sdk/file/upload/temp-url"
-                let permanentUploadPath = "sdk/file/upload-url"
+                let temporaryUploadPath = "/sdk/file/upload/temp-url"
+                let permanentUploadPath = "/sdk/file/upload-url"
                 return isTemporary ? temporaryUploadPath : permanentUploadPath
             case .execute(let modelIdentifier):
                 return "/execute/\(modelIdentifier)"

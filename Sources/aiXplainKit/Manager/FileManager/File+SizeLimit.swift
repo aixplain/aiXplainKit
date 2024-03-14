@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension AiXplainFileManager {
+extension FileUploadManager {
 
     /// Defines the file size limit for different types of files based on their MIME types.
     enum FileSizeLimit: String {

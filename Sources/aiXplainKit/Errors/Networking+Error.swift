@@ -8,6 +8,9 @@
 import Foundation
 
 enum NetworkingError: Error {
+    /// Invalid http response
+    case invalidHttpResponse
+
     /// An invalid status code was received from the network request.
     case invalidStatusCode(statusCode: Int)
 
@@ -21,6 +24,8 @@ enum NetworkingError: Error {
         case .invalidURL(url: let url):
             guard let url = url else { return "Invalid URL." }
             return "The provided URL is malformed: \(url)"
+        case .invalidHttpResponse:
+            return "The provided HTTP response is invalid"
         }
     }
 }

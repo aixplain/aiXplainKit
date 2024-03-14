@@ -103,7 +103,7 @@ extension Model {
        /// - Throws: `ModelError` or `NetworkingError` if there are any issues during the model run.
     public func run<T: ModelInput>(_ modelInput: T, id: String = "model_process", parameters: [String: String]? = nil) async throws -> ModelOutput {
         let headers = try self.networking.buildHeader()
-        let payload = modelInput.generateInputPayloadForModel()
+        let payload = try await modelInput.generateInputPayloadForModel()
 
         guard let url = APIKeyManager.shared.MODELS_RUN_URL else {
             throw ModelError.missingBackendURL
@@ -113,6 +113,7 @@ extension Model {
             throw ModelError.invalidURL(url: url.absoluteString)
         }
 
+        logger.debug("Creating a execution with the following payload \(String(data: payload, encoding: .utf8))")
         let response = try await networking.post(url: url, headers: headers, body: payload)
 
         if let httpUrlResponse = response.1 as? HTTPURLResponse,
@@ -120,18 +121,13 @@ extension Model {
             throw NetworkingError.invalidStatusCode(statusCode: httpUrlResponse.statusCode)
         }
 
-        do {
-            let decodedResponse = try JSONDecoder().decode(ExecuteResponse.self, from: response.0)
+        let decodedResponse = try JSONDecoder().decode(ExecuteResponse.self, from: response.0)
 
-            guard let pollingURL = decodedResponse.pollingURL else {
-                throw ModelError.failToDecodeRunResponse
-            }
-            logger.info("Successfully created a execution")
-            return try await polling(from: pollingURL)
-
-        } catch {
+        guard let pollingURL = decodedResponse.pollingURL else {
             throw ModelError.failToDecodeRunResponse
         }
+        logger.info("Successfully created a execution")
+        return try await polling(from: pollingURL)
 
     }
 
@@ -154,6 +150,11 @@ extension Model {
             logger.debug("(\(itr)/\(maxRetry))Polling...")
             if let json = try? JSONSerialization.jsonObject(with: response.0, options: []) as? [String: Any],
               let completed = json["completed"] as? Bool {
+
+                if let _ = json["error"] as? String, let supplierError = json["supplierError"] as? String {
+                    throw ModelError.supplierError(error: supplierError)
+                }
+
                 if completed {
                     do {
                         let decodedResponse = try JSONDecoder().decode(ModelOutput.self, from: response.0)
