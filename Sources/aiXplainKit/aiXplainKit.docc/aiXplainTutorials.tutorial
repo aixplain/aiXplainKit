@@ -1,0 +1,21 @@
+@Tutorials(name: "aiXplainKit 101") {
+    @Intro(title: "aiXplainKit 101") {
+        Learn the fundamentals of working with the aiXplainKit framework to interact with AI models.
+    }
+
+    @Chapter(name: "Getting Started") {
+        @TutorialReference(tutorial: "doc:DiscoverTutorial")
+        
+        @Intro(title: "Getting Started with aiXplainKit") {
+            Get up and running with the aiXplainKit framework by setting up your API key and exploring the basic workflow for interacting with AI models.
+        }
+    }
+
+<!--    @Chapter(name: "Advanced Topics") {-->
+<!--        @Intro(title: "Advanced Topics") {-->
+<!--            Dive deeper into the capabilities of aiXplainKit and learn how to leverage its advanced features for more complex use cases.-->
+<!--        }-->
+<!---->
+<!--        // Add additional tutorial references for advanced topics-->
+<!--    }-->
+}

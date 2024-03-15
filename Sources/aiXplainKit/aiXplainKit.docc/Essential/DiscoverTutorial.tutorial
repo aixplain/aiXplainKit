@@ -1,0 +1,66 @@
+@Tutorial(time: 2) {
+   @Intro(title: "Interacting with Text-to-Text AI Models using AiXplainKit") {
+       In this tutorial, you'll learn how to interact with Text-to-Text AI models using the AiXplainKit framework. You'll set your API key, retrieve a model, and generate output from the model.
+
+   }
+
+   @Section(title: "Setting up") {
+       @ContentAndMedia {
+           Before you can interact with AI models, you need to set up the AiXplainKit framework and provide your API key.
+
+       }
+
+       @Steps {
+           @Step {
+               First, import the AiXplainKit framework in your Swift file:
+               
+               @Code(name: "AiXplainKit.swift", file: DiscoverExample.swift)
+           }
+
+           @Step {
+               Next, set your API key:
+               
+               Replace `"123"` with your actual API key.
+               
+               @Code(name: "AiXplainKit.swift", file: DiscoverExample2.swift)
+           }
+           
+           
+           @Step {
+               After setting up AiXplainKit, you can retrieve an AI model using its unique identifier. 
+               
+               These identifier can be obtain in the AiXplain plataform website. For this tutorial we will be using the Chat-GPT 3.5 by OpenAI
+               
+               @Code(name: "AiXplainKit.swift", file: DiscoverExample3.swift)
+           }
+           
+           
+           @Step {
+               Remember, it is always advised to handle all possible errors. The `ModelFactory().get` method may throw due to various reasons.
+               
+               @Code(name: "AiXplainKit.swift", file: DiscoverExample4.swift)
+           }
+           
+       }
+   }
+   
+   @Section(title: "Interacting with the model") {
+       @ContentAndMedia {
+           Now that everything is set, you can start interacting with the model. There are several ways to interact with the model. For this tutorial, we will be considering only text-to-text models.
+           
+       }
+       @Steps{
+           @Step {
+               Since we are using a Text-to-Text model we can use a String as input. Keep in mind that some models also accepts URLs too. 
+               
+               @Code(name: "AiXplainKit.swift", file: DiscoverExample5.swift)
+           }
+           
+           @Step {
+               This process is async, so it may take some seconds. After that you can interact with the output
+               
+               @Code(name: "AiXplainKit.swift", file: DiscoverExample6.swift)
+           }
+       }
+   }
+}

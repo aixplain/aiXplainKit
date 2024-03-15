@@ -46,7 +46,7 @@ final class ModelProviderFunctionalTests: XCTestCase {
         self.measure {
             let exp = expectation(description: "Finished")
             Task {
-                let llamaModel = try await ModelProvider().get(llamaModelIdentifier)
+                _ = try await ModelProvider().get(llamaModelIdentifier)
                 exp.fulfill()
             }
             wait(for: [exp], timeout: 200.0)
