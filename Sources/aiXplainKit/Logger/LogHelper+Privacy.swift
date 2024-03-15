@@ -68,13 +68,13 @@ public struct PrivacyStringInterpolation: StringInterpolationProtocol {
             case .showPrefix(let prefixSize):
                 let itemDescription = String(describing: item)
                 let ellipsis = prefixSize < itemDescription.count ? "..." : ""
-                self.value.append(itemDescription.prefix(prefixSize).description + ellipsis)
+                self.value.append(itemDescription.prefix(prefixSize).modelDescription + ellipsis)
             case .showSuffix(let suffixSize):
                 let itemDescription = String(describing: item)
                 let ellipsis = suffixSize < itemDescription.count ? "..." : ""
-                self.value.append(ellipsis + itemDescription.suffix(suffixSize).description)
+                self.value.append(ellipsis + itemDescription.suffix(suffixSize).modelDescription)
             case .showHash:
-                self.value.append("<hash: \(String(describing: item).hashValue.description)>")
+                self.value.append("<hash: \(String(describing: item).hashValue.modelDescription)>")
             case .showAsteriscs:
                 self.value.append(String(repeating: "*", count: String(describing: item).count))
             case .hide:

@@ -21,10 +21,6 @@ final class ModelProviderTests: XCTestCase {
         AiXplainKit.shared.keyManager.TEAM_API_KEY = "-"
 
         let mockNetworking = MockNetworking()
-        let response = HTTPURLResponse(url: URL(string: "http://mock.com")!, statusCode: 200, httpVersion: "", headerFields: [:])!
-        let data = ModelProvider_get_MockResponse!
-        mockNetworking.getReturnValue = (data, response)
-
         let modelProvider = ModelProvider(networking: mockNetworking)
 
         let fetchedModel = try await modelProvider.get("640b517694bf816d35a59125")

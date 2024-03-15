@@ -16,7 +16,7 @@ protocol Asset {
     var name: String { get }
 
     /// A description of the asset's purpose and functionality.
-    var description: String { get }
+    var modelDescription: String { get }
 
     /// The supplier of the asset, providing information about its source.
     var supplier: Supplier { get }

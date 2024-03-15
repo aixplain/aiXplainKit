@@ -9,9 +9,9 @@ import Foundation
 
 /// Output provided by a model when calling `Model.run()`
 public struct ModelOutput: Codable {
-    let output: String
-    let usedCredits: Float
-    let runtime: TimeInterval
+    public let output: String
+    public let usedCredits: Float
+    public let runtime: TimeInterval
 
     enum CodingKeys: String, CodingKey {
         case output = "data"

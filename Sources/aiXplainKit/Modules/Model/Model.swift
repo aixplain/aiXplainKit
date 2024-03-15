@@ -7,8 +7,11 @@
 
 import Foundation
 
+// TODO: Add example on how to use it, how to set the API key too
+// TODO: Custom String decodable
 /// This is ready-to-use AI model. This model can be run in both synchronous and asynchronous manner.
-public final class Model: DecodableAsset {
+public final class Model: DecodableAsset, CustomStringConvertible {
+
         /// Unique identifier for the model.
         public let id: String
 
@@ -16,27 +19,38 @@ public final class Model: DecodableAsset {
         public let name: String
 
         /// Description of the model's functionality.
-        let description: String
+        public let modelDescription: String
 
         /// The entity that provides the model.
-        let supplier: Supplier
+        public let supplier: Supplier
 
         /// Version of the model.
-        let version: String
+        public let version: String
 
         /// Optional license information associated with the model.
-        let license: License?
+        public let license: License?
 
         /// Optional privacy information associated with the model.
-        let privacy: Privacy?
+        public let privacy: Privacy?
 
         /// Information about the model's pricing.
-        let pricing: Pricing
+        public let pricing: Pricing
 
         /// The networking service is responsible for making API calls and handling URL sessions.
-        var networking: Networking = Networking()
+        var networking: Networking
 
         private let logger: ParrotLogger
+
+    public var description: String {
+        var description = "Model:\n"
+                description += "  ID: \(id)\n"
+                description += "  Name: \(name)\n"
+                description += "  Description: \(self.modelDescription)\n"
+                description += "  Supplier: \(supplier)\n"
+                description += "  Version: \(version)\n"
+                description += "  Pricing: \(pricing)\n"
+        return description
+    }
 
         // MARK: - Initialization
 
@@ -48,7 +62,7 @@ public final class Model: DecodableAsset {
 
             id = try container.decode(String.self, forKey: .id)
             name = try container.decode(String.self, forKey: .name)
-            description = try container.decodeIfPresent(String.self, forKey: .description) ?? "An ML Model"
+            modelDescription = try container.decodeIfPresent(String.self, forKey: .description) ?? "An ML Model"
             supplier = try container.decode(Supplier.self, forKey: .supplier)
 
             version = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .version).decodeIfPresent(String.self, forKey: .id) ?? "-"
@@ -58,7 +72,9 @@ public final class Model: DecodableAsset {
             privacy = nil
             license = nil
 
-             logger = ParrotLogger(category: "AiXplainKit | Model(\(name)")
+            logger = ParrotLogger(category: "AiXplainKit | Model(\(name)")
+
+            networking = Networking()
         }
 
         /// Creates a new `MLModel` instance with the provided parameters.
@@ -71,16 +87,17 @@ public final class Model: DecodableAsset {
         ///   - license: Optional license information associated with the model.
         ///   - privacy: Optional privacy information associated with the model.
         ///   - pricing: Information about the model's pricing.
-        public init(id: String, name: String, description: String, supplier: Supplier, version: String, license: License? = nil, privacy: Privacy? = nil, pricing: Pricing) {
+    public init(id: String, name: String, description: String, supplier: Supplier, version: String, license: License? = nil, privacy: Privacy? = nil, pricing: Pricing, networking: Networking) {
             self.id = id
             self.name = name
-            self.description = description
+            self.modelDescription = description
             self.supplier = supplier
             self.version = version
             self.license = license
             self.privacy = privacy
             self.pricing = pricing
             self.logger = ParrotLogger(category: "AiXplainKit | Model(\(name))")
+            self.networking = networking
         }
 
     // Private enum for coding keys to improve readability and maintainability.
@@ -100,12 +117,12 @@ extension Model {
        ///   - parameters: Optional dictionary of parameters for the model run.
        /// - Returns: The output of the model run.
        /// - Throws: `ModelError` or `NetworkingError` if there are any issues during the model run.
-    public func run<T: ModelInput>(_ modelInput: T, id: String = "model_process", parameters: [String: String]? = nil) async throws -> ModelOutput {
+    public func run(_ modelInput: ModelInput, id: String = "model_process", parameters: [String: String]? = nil) async throws -> ModelOutput {
         let headers = try self.networking.buildHeader()
         let payload = try await modelInput.generateInputPayloadForModel()
 
         guard let url = APIKeyManager.shared.MODELS_RUN_URL else {
-            throw ModelError.missingBackendURL
+            throw ModelError.missingModelRunURL
         }
 
         guard let url = URL(string: url.absoluteString + self.id) else {

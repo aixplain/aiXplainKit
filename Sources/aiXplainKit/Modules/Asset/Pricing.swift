@@ -10,13 +10,13 @@ import Foundation
 /// Represents the pricing information for an given Asset.
 public struct Pricing: Codable {
     /// The price of the asset
-    let price: Float
+    public let price: Float
 
     /// The unit of measurement for the price (e.g., "USD", "EUR", "TOKENS").
-    let unitType: String?
+    public let unitType: String?
 
     /// The scale of the unit (e.g., "micro", "milli").
-    let unitScale: String?
+    public let unitScale: String?
 
     /// Initializes a new `Pricing` struct.
     ///

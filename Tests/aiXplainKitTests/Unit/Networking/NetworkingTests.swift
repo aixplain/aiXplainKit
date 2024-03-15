@@ -18,7 +18,7 @@ final class NetworkingTests: XCTestCase {
         AiXplainKit.shared.keyManager.TEAM_API_KEY = "-"
         let network = Networking()
 
-        var headers = try? network.buildHeader()
+        let headers = try? network.buildHeader()
 
         XCTAssertEqual(headers, ["Authorization": "Token -", "Content-Type": "application/json"])
 
@@ -43,13 +43,13 @@ final class NetworkingTests: XCTestCase {
         let network = Networking()
 
         do {
-            _ = try network.buildUrl(for: .function)
+            _ = try network.buildUrl(for: .functionEndpoint)
         } catch {
             XCTAssertTrue(error as! ModelError == ModelError.missingBackendURL)
         }
 
         do {
-            _ = try network.buildUrl(for: .model(modelID: "123"))
+            _ = try network.buildUrl(for: .model(modelIdentifier: "123"))
         } catch {
             XCTAssertTrue(error as! ModelError == ModelError.missingBackendURL)
         }

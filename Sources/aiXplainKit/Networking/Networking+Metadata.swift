@@ -26,6 +26,7 @@ extension Networking {
         return headers
     }
 
+    // TODO: Documentation
     func buildUrl(for endpoint: Endpoint) throws -> URL? {
 
         guard let url = APIKeyManager.shared.BACKEND_URL else {

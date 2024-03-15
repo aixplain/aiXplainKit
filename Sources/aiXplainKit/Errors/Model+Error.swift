@@ -8,6 +8,9 @@ enum ModelError: Error, Equatable {
     /// No backend URL was provided for the backend service.
     case missingBackendURL
 
+    /// No Model Run URL was provided for the Run service.
+    case missingModelRunURL
+
     /// The provided URL is malformed.
     case invalidURL(url: String?)
 
@@ -40,6 +43,8 @@ enum ModelError: Error, Equatable {
             return "An error occurred while decoding the model output during the polling phase." + (error.map { " Details: \($0)" } ?? "")
         case .supplierError(let error):
             return "An error ocurred from the suplier side: \(error)."
+        case .missingModelRunURL:
+            return "No URL was provided for the Model Run service. Please set a URL using `AiXplainKit.keyManager`."
         }
     }
 }
