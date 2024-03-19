@@ -110,6 +110,7 @@ public final class Model: DecodableAsset, CustomStringConvertible {
 // MARK: - Model Execution
 
 extension Model {
+    // TODO: Implement parameters
     // Runs the model with the provided input and parameters.
        /// - Parameters:
        ///   - modelInput: The input data for the model.
@@ -120,7 +121,6 @@ extension Model {
     public func run(_ modelInput: ModelInput, id: String = "model_process", parameters: [String: String]? = nil) async throws -> ModelOutput {
         let headers = try self.networking.buildHeader()
         let payload = try await modelInput.generateInputPayloadForModel()
-
         guard let url = APIKeyManager.shared.MODELS_RUN_URL else {
             throw ModelError.missingModelRunURL
         }
@@ -137,7 +137,7 @@ extension Model {
             throw NetworkingError.invalidStatusCode(statusCode: httpUrlResponse.statusCode)
         }
 
-        let decodedResponse = try JSONDecoder().decode(ExecuteResponse.self, from: response.0)
+        let decodedResponse = try JSONDecoder().decode(ModelExecuteResponse.self, from: response.0)
 
         guard let pollingURL = decodedResponse.pollingURL else {
             throw ModelError.failToDecodeRunResponse

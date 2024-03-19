@@ -17,24 +17,24 @@ import Foundation
 ///     - `runtime`: The time it took to run the model, measured in seconds.
 ///
 public struct ModelOutput: Codable {
-   
+
    /// The main output string returned by the model.
    public let output: String
-   
+
    /// The number of credits used for running the model.
    public let usedCredits: Float
-   
+
    /// The time it took to run the model, measured in seconds.
    public let runtime: TimeInterval
-   
+
    private enum CodingKeys: String, CodingKey {
        case output = "data"
        case usedCredits
        case runtime = "runTime"
    }
-   
+
    // MARK: - Codable
-   
+
    /// Creates a new `ModelOutput` instance by decoding from the given decoder.
    ///
    /// - Parameter decoder: The decoder to read data from.

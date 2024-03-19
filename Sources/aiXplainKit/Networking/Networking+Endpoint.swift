@@ -26,6 +26,10 @@ extension Networking {
         /// - parameter modelIdentifier: The identifier of the model to be executed
         case execute(modelIdentifier: String)
 
+        case pipelines(pipelineIdentifier: String)
+
+        case pipelineRun(pipelineIdentifier: String)
+
         /// The path for the endpoint
         var path: String {
             switch self {
@@ -39,6 +43,10 @@ extension Networking {
                 return isTemporary ? temporaryUploadPath : permanentUploadPath
             case .execute(let modelIdentifier):
                 return "/execute/\(modelIdentifier)"
+            case .pipelines(pipelineIdentifier: let pipelineIdentifier):
+                return "/sdk/pipelines/\(pipelineIdentifier)"
+            case .pipelineRun(pipelineIdentifier: let pipelineIdentifier):
+                return "/assets/pipeline/execution/run/\(pipelineIdentifier)"
             }
         }
     }

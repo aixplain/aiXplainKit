@@ -8,7 +8,7 @@
 import Foundation
 
 /// Decodes the response when running a model making a API call to  `MODELS_RUN_URL
-internal struct ExecuteResponse: Codable {
+internal struct ModelExecuteResponse: Codable {
     let completed: Bool?
     let data: String?
     let requestId: String?
