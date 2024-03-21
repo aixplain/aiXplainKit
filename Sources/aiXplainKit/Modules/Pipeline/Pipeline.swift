@@ -4,19 +4,47 @@
 //
 //  Created by Joao Pedro Monteiro Maia on 19/03/24.
 //
-// TODO: Documentation
+
 import Foundation
 
-/// A custom pipeline that can be created on the aiXplain Platform
+/**
+A custom pipeline that can be created on the aiXplain Platform.
+
+## Overview
+The `Pipeline` class represents a custom pipeline on the aiXplain Platform. It provides functionality to run the pipeline and handle its execution.
+
+## Usage
+1. Initialize a `Pipeline` object with the necessary parameters.
+2. Call the `run(_:id:parameters:)` method to execute the pipeline.
+
+## Example
+```swift
+let pipeline = PipelineFactory.get("PipelineID")
+let input = "Hello World"
+do {
+    let output = try await pipeline.run(input)
+    // Handle pipeline output
+} catch {
+    // Handle errors
+}```
+ */
 public final class Pipeline: Decodable {
+    /// The unique identifier of the pipeline.
     public var id: String
-    private let apiKey: String  // This API key is dynamic generated for Pipeline-uses only. It is not the same thing as the API key for the model
+
+    /// The API key generated for pipeline usage.
+    private let apiKey: String
+
+    /// An array of input nodes in the pipeline.
     public let inputNodes: [PipelineNode]
+
+    /// An array of output nodes in the pipeline.
     public let outputNodes: [PipelineNode]
 
-    /// The networking service is responsible for making API calls and handling URL sessions.
+    /// The networking service responsible for making API calls.
     var networking: Networking
 
+    /// The logger used for logging pipeline events.
     private let logger: ParrotLogger
 
     enum CodingKeys: String, CodingKey {
@@ -26,6 +54,7 @@ public final class Pipeline: Decodable {
         case apiKey
     }
 
+    /// Initializes a pipeline object from decoder.
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let subscriptionContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .subscription)
@@ -42,9 +71,17 @@ public final class Pipeline: Decodable {
 
 extension Pipeline {
 
-    // TODO: Implement parameters | Docs
-    /// Function responsable for running the pipeline
-    public func run(_ pipelineInput: PipelineInput, id: String = "model_process", parameters: [String: String]? = nil) async throws {
+    /**
+     Runs the pipeline with the provided input.
+     
+     - Parameters:
+        - pipelineInput: The input data for the pipeline.
+        - id: The identifier for the pipeline execution (default value: "model_process").
+        - parameters: Additional parameters for the pipeline execution (default value: nil).
+     - Returns: A `PipelineOutput` object representing the output of the pipeline.
+     - Throws: Throws an error if the pipeline execution fails.
+     */
+    public func run(_ pipelineInput: PipelineInput, id: String = "model_process", parameters: [String: String]? = nil) async throws -> PipelineOutput {
         let headers = try self.networking.buildHeader()
         let payload = try await pipelineInput.generateInputPayloadForPipeline()
         guard let url = APIKeyManager.shared.BACKEND_URL else {
@@ -70,11 +107,20 @@ extension Pipeline {
             throw PipelineError.failToDecodeRunResponse
         }
         logger.info("Successfully created a execution")
-        try await self.polling(from: pollingURL)
+        return try await self.polling(from: pollingURL)
     }
 
-    // TODO: Docs
-    private func polling(from url: URL, maxRetry: Int = 300, waitTime: Double = 0.5) async throws -> ModelOutput {
+    /**
+     Polls the specified URL for pipeline output.
+     
+     - Parameters:
+        - url: The URL to poll for pipeline output.
+        - maxRetry: The maximum number of polling retries (default value: 300).
+        - waitTime: The time to wait between polling attempts in seconds (default value: 0.5).
+     - Returns: A `PipelineOutput` object representing the output of the pipeline.
+     - Throws: Throws an error if polling fails or times out.
+     */
+    private func polling(from url: URL, maxRetry: Int = 300, waitTime: Double = 0.5) async throws -> PipelineOutput {
         let headers = try self.networking.buildHeader()
 
         var itr = 0
@@ -84,29 +130,27 @@ extension Pipeline {
             let response = try await networking.get(url: url, headers: headers)
             print(String(data: response.0, encoding: .utf8))
             logger.debug("(\(itr)/\(maxRetry))Polling...")
-//            if let json = try? JSONSerialization.jsonObject(with: response.0, options: []) as? [String: Any],
-//              let completed = json["completed"] as? Bool {
-//
-//                if let _ = json["error"] as? String, let supplierError = json["supplierError"] as? String {
-//                    throw ModelError.supplierError(error: supplierError)
-//                }
-//
-//                if completed {
-//                    do {
-//                        let decodedResponse = try JSONDecoder().decode(ModelOutput.self, from: response.0)
-//                        logger.info("Polling job finished.")
-//                        return decodedResponse
-//                    } catch {
-//                        throw ModelError.failToDecodeModelOutputDuringPollingPhase(error: String(describing: error))
-//                    }
-//                }
-//            }
+            if let json = try? JSONSerialization.jsonObject(with: response.0, options: []) as? [String: Any],
+              let completed = json["completed"] as? Bool {
+                if let _ = json["error"] as? String, let supplierError = json["supplierError"] as? String {
+                    throw ModelError.supplierError(error: supplierError)
+                }
+
+                if completed {
+                    do {
+                        let partialyDecodedResponse = PipelineOutput(from: response.0)
+                        logger.info("Polling job finished.")
+                        return partialyDecodedResponse
+                    } catch {
+                        throw PipelineError.failToDecodeModelOutputDuringPollingPhase(error: String(describing: error))
+                    }
+                }
+            }
 
             try await Task.sleep(nanoseconds: UInt64(max(0.2, waitTime) * 1_000_000_000))
             itr+=1
         } while itr < maxRetry
 
-        // TODO: Better eerrs
-        throw ModelError.pollingTimeoutOnModelResponse(pollingURL: url)
+        throw PipelineError.pollingTimeoutOnModelResponse(pollingURL: url)
     }
 }

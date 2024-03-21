@@ -31,8 +31,7 @@ extension URL: ModelInput {
         }
 
         guard let jsonData = try? JSONSerialization.data(withJSONObject: payload, options: []) else {
-            print(payload) // TODO: Fix this
-            return Data()
+            throw ModelError.failToGenerateAFilePayload(error: String(describing: payload))
         }
 
         return jsonData

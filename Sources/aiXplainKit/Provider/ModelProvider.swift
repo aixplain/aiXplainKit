@@ -59,28 +59,4 @@ public final class ModelProvider {
 
     }
 
-    // TODO: Understand this better
-    /// Lists supported model functions on platform.
-    func listFunctions() async throws {
-
-        let headers: [String: String] = try networking.buildHeader()
-
-        guard let url = APIKeyManager.shared.BACKEND_URL else {
-            throw ModelError.missingBackendURL
-        }
-
-        let endpoint = Networking.Endpoint.functionEndpoint
-        guard let url = URL(string: url.absoluteString + endpoint.path) else {
-            throw ModelError.invalidURL(url: url.absoluteString + endpoint.path)
-        }
-
-        let response = try await networking.get(url: url, headers: headers)
-
-        if let httpUrlResponse = response.1 as? HTTPURLResponse,
-           httpUrlResponse.statusCode != 200 {
-            throw NetworkingError.invalidStatusCode(statusCode: httpUrlResponse.statusCode)
-        }
-
-    }
-
 }

@@ -26,6 +26,9 @@ enum ModelError: Error, Equatable {
     /// Error reported by the supplier or service.
     case supplierError(error: String)
 
+    /// Error reportet when using a file/URL as input and something went wrong
+    case failToGenerateAFilePayload(error: String)
+
     var localizedDescription: String {
         switch self {
         case .missingAPIKey:
@@ -45,6 +48,8 @@ enum ModelError: Error, Equatable {
             return "An error ocurred from the suplier side: \(error)."
         case .missingModelRunURL:
             return "No URL was provided for the Model Run service. Please set a URL using `AiXplainKit.keyManager`."
+        case .failToGenerateAFilePayload(error: let error):
+            return "Something went wrong while generating a payload for the model from a file: \(error)"
         }
     }
 }
