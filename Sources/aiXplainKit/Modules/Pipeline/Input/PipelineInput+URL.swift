@@ -37,9 +37,4 @@ extension URL: PipelineInput {
         return jsonData
 
     }
-
-    // TODO: Docs - will only use context if implemented, otherwise no context will be used
-    public func generateContextAwareInputPayloadForPipeline(using nodes: [PipelineNode]) async throws -> Data {
-        throw fatalError("Not implemented for this kind of input")
-    }
 }

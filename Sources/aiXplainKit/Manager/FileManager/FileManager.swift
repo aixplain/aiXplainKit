@@ -61,7 +61,7 @@ internal final class FileUploadManager {
 
         let s3Link = try constructS3Link(from: preSignedURL)
         guard let s3URL = URL(string: s3Link) else {
-            throw FileError.bucketNameNotFound // TODO: Proper Error
+            throw FileError.bucketNameNotFound
         }
 
         return s3URL
@@ -150,6 +150,13 @@ internal final class FileUploadManager {
         return s3Link
     }
 
+    /// Uploads data to a remote location if necessary.
+    ///
+    /// This function checks if the provided URL is already a remote URL (e.g., starting with "s3://", "http://", or "https://"). If not, it uploads the local file to a remote location and returns the new remote URL.
+    ///
+    /// - Parameter localURL: The local URL of the data to be uploaded if necessary.
+    /// - Returns: The remote URL of the uploaded data.
+    /// - Throws: Any error that may occur during the file upload process.
     public  func uploadDataIfNeedIt(from url: URL) async throws -> URL {
         var url = url
         switch url.absoluteString {

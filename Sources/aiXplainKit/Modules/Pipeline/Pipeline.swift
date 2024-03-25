@@ -66,17 +66,6 @@ public final class Pipeline: Decodable {
         logger = ParrotLogger(category: "AiXplainKit | Pipeline")
     }
 
-    // TODO: DOCs
-    public var inputNodeLabelMap: [String: PipelineNode] {
-        var map: [String: PipelineNode] = [:]
-
-        inputNodes.forEach {
-            map.updateValue($0, forKey: $0.label)
-        }
-
-        return map
-    }
-
 }
 
 // MARK: - Pipeline Execution
@@ -85,10 +74,10 @@ extension Pipeline {
 
     /**
      Runs the pipeline with the provided input.
-     
+
      - Parameters:
         - pipelineInput: The input data for the pipeline.
-        - id: The identifier for the pipeline execution (default value: "model_process").
+        - executionIdentifier: The identifier for the pipeline execution (default value: "model_process").
         - parameters: Additional parameters for the pipeline execution (default value: nil).
      - Returns: A `PipelineOutput` object representing the output of the pipeline.
      - Throws: Throws an error if the pipeline execution fails.
@@ -106,7 +95,7 @@ extension Pipeline {
             throw PipelineError.invalidURL(url: url.absoluteString)
         }
 
-        logger.debug("Creating a execution with the following payload \(String(data: payload, encoding: .utf8))")
+        logger.debug("Creating a execution with the following payload \(String(data: payload, encoding: .utf8) ?? "-")")
         let response = try await networking.post(url: url, headers: headers, body: payload)
 
         if let httpUrlResponse = response.1 as? HTTPURLResponse,

@@ -29,8 +29,11 @@ enum PipelineError: Error, Equatable {
     /// Error reported by the supplier or service.
     case supplierError(error: String)
 
-    // TODO: Docs
-    case typeNotRecongnizedWhileCreatingACombinedInput
+    /// An unsupported value type was encountered during input payload generation.
+    case typeNotRecognizedWhileCreatingACombinedInput
+
+    /// An error occurred during input encoding.
+    case inputEncodingError
 
     var localizedDescription: String {
         switch self {
@@ -49,8 +52,10 @@ enum PipelineError: Error, Equatable {
             return "An error occurred while decoding the model output during the polling phase." + (error.map { " Details: \($0)" } ?? "")
         case .supplierError(let error):
             return "An error ocurred from the suplier side: \(error)."
-        case .typeNotRecongnizedWhileCreatingACombinedInput:
-            return "DOC HERE" // TODO: BETTER ERROR
+        case .typeNotRecognizedWhileCreatingACombinedInput:
+            return "An unsupported value type was encountered during input payload generation. Please ensure that all input values are either URLs or strings."
+        case .inputEncodingError:
+            return "An error occurred during input encoding. Please check the input data and try again."
         }
     }
 }
