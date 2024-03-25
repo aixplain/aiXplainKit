@@ -7,11 +7,15 @@
 
 import Foundation
 
-public struct PipelineNode: Decodable {
+public struct PipelineNode: Decodable, Identifiable, Hashable {
     let number: Int
     let label: String
     let dataType: [String]
     let type: String
+
+    public var id: String {
+        return "\(number)"
+    }
 
     enum CodingKeys: String, CodingKey {
         case number, label, dataType, type

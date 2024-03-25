@@ -150,4 +150,20 @@ internal final class FileUploadManager {
         return s3Link
     }
 
+    public  func uploadDataIfNeedIt(from url: URL) async throws -> URL {
+        var url = url
+        switch url.absoluteString {
+        case let link where link.starts(with: "s3://"):
+            break
+        case let link where link.starts(with: "http://"):
+            break
+        case let link where link.starts(with: "https://"):
+            break
+        default:
+            let fileManager = FileUploadManager()
+            url = try await fileManager.uploadFile(at: url)
+        }
+        return url
+    }
+
 }

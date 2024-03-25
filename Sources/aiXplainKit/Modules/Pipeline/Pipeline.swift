@@ -65,6 +65,18 @@ public final class Pipeline: Decodable {
         networking = Networking()
         logger = ParrotLogger(category: "AiXplainKit | Pipeline")
     }
+
+    // TODO: DOCs
+    public var inputNodeLabelMap: [String: PipelineNode] {
+        var map: [String: PipelineNode] = [:]
+
+        inputNodes.forEach {
+            map.updateValue($0, forKey: $0.label)
+        }
+
+        return map
+    }
+
 }
 
 // MARK: - Pipeline Execution
@@ -84,6 +96,7 @@ extension Pipeline {
     public func run(_ pipelineInput: PipelineInput, id: String = "model_process", parameters: [String: String]? = nil) async throws -> PipelineOutput {
         let headers = try self.networking.buildHeader()
         let payload = try await pipelineInput.generateInputPayloadForPipeline()
+
         guard let url = APIKeyManager.shared.BACKEND_URL else {
             throw ModelError.missingModelRunURL
         }
@@ -124,7 +137,7 @@ extension Pipeline {
         let headers = try self.networking.buildHeader()
 
         var itr = 0
-
+        logger.logLevel = .debug
         logger.info("Starting polling job")
         repeat {
             let response = try await networking.get(url: url, headers: headers)
