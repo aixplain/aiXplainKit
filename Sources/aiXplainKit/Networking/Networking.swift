@@ -7,11 +7,10 @@
 
 import Foundation
 
-
 /// A class responsible for making network requests.
 public class Networking {
-    
-    public var parameters:NetworkingParametersProtocol = NetworkingParameters()
+
+    public var parameters: NetworkingParametersProtocol = NetworkingParameters()
     private let logger = ParrotLogger(category: "AiXplainKit | Networking")
 
     /// Fetches data from the specified URL using the GET method.
@@ -29,19 +28,19 @@ public class Networking {
             request.setValue(value, forHTTPHeaderField: header)
         }
 
-        var retryCount:Int = 0
-        repeat{
+        var retryCount: Int = 0
+        repeat {
             do {
                 logger.debug("GET request to \(url)")
                 return try await URLSession.shared.data(for: request)
-            }catch{
+            } catch {
                 try? await Task.sleep(nanoseconds: UInt64(parameters.networkTimeoutInSecondsInterval * 1_000_000_000))
             }
             retryCount += 1
         } while retryCount <= parameters.maxNetworkCallRetries
-        
+
         throw NetworkingError.maxRetryReached
-        
+
     }
 
     /// Posts data to the specified URL using the POST method.
@@ -67,17 +66,17 @@ public class Networking {
             request.httpBody = body
         }
 
-        var retryCount:Int = 0
-        repeat{
+        var retryCount: Int = 0
+        repeat {
             do {
                 logger.debug("POST request to \(url)")
                 return try await URLSession.shared.data(for: request)
-            }catch{
+            } catch {
                 try? await Task.sleep(nanoseconds: UInt64(parameters.networkTimeoutInSecondsInterval * 1_000_000_000))
             }
             retryCount += 1
         } while retryCount <= parameters.maxNetworkCallRetries
-        
+
         throw NetworkingError.maxRetryReached    }
 
     /// Sends data to the specified URL using the PUT method.
@@ -100,17 +99,17 @@ public class Networking {
             request.setValue(value, forHTTPHeaderField: header)
         }
 
-        var retryCount:Int = 0
-        repeat{
+        var retryCount: Int = 0
+        repeat {
             do {
                 logger.debug("PUT request to \(url)")
                 return try await URLSession.shared.upload(for: request, from: body)
-            }catch{
+            } catch {
                 try? await Task.sleep(nanoseconds: UInt64(parameters.networkTimeoutInSecondsInterval * 1_000_000_000))
             }
             retryCount += 1
         } while retryCount <= parameters.maxNetworkCallRetries
-        
+
         throw NetworkingError.maxRetryReached
     }
 

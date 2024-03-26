@@ -16,11 +16,11 @@ import Foundation
  for network requests.
  */
 public protocol RunParameters {
-    
+
     /// The time interval (in seconds) to wait before attempting another polling operation.
     var pollingWaitTimeInSeconds: TimeInterval { get set }
-    
+
     /// The maximum number of retries allowed for polling operations.
     var maxPollingRetries: Int { get set }
-    
+
 }

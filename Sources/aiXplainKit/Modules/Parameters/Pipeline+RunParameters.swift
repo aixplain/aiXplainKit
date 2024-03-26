@@ -7,19 +7,19 @@
 
 import Foundation
 
-public struct PipelineRunParameters:RunParameters,NetworkingParametersProtocol{
-    
+public struct PipelineRunParameters: RunParameters, NetworkingParametersProtocol {
+
     /// The time interval (in seconds) to wait before attempting another polling operation.
     public var pollingWaitTimeInSeconds: TimeInterval = 0.5
-    
+
     /// The maximum number of retries allowed for polling operations.
     public var maxPollingRetries: Int = 300
-    
+
     /// The timeout interval (in seconds) for network requests.
     public var networkTimeoutInSecondsInterval: TimeInterval = 10
-    
+
     /// The maximum number of retries allowed for network calls.
     public var maxNetworkCallRetries: Int = 2
-    
-    public static let defaultParameters:PipelineRunParameters = PipelineRunParameters()
+
+    public static let defaultParameters: PipelineRunParameters = PipelineRunParameters()
 }

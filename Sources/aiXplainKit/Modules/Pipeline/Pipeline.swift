@@ -28,7 +28,7 @@ do {
     // Handle errors
 }```
  */
-public final class Pipeline: Decodable,CustomStringConvertible {
+public final class Pipeline: Decodable, CustomStringConvertible {
     /// The unique identifier of the pipeline.
     public var id: String
 
@@ -65,17 +65,16 @@ public final class Pipeline: Decodable,CustomStringConvertible {
         networking = Networking()
         logger = ParrotLogger(category: "AiXplainKit | Pipeline")
     }
-    
-    
+
     public var description: String {
         var description = "Pipeline:\n"
         description += "  ID: \(id)\n"
         description += "  <- Input:\n"
-        inputNodes.forEach{ node in
+        inputNodes.forEach { node in
             description += "\t[\(node.number)]\(node.label):\(node.type)\n"
         }
         description += "  -> output:\n"
-        outputNodes.forEach{ node in
+        outputNodes.forEach { node in
             description += "\t[\(node.number)]\(node.label):\(node.type)\n"
         }
         return description
@@ -125,7 +124,7 @@ extension Pipeline {
             throw PipelineError.failToDecodeRunResponse
         }
         logger.info("Successfully created a execution")
-        return try await self.polling(from: pollingURL,maxRetry: parameters.maxPollingRetries,waitTime: parameters.pollingWaitTimeInSeconds)
+        return try await self.polling(from: pollingURL, maxRetry: parameters.maxPollingRetries, waitTime: parameters.pollingWaitTimeInSeconds)
     }
 
     /**
