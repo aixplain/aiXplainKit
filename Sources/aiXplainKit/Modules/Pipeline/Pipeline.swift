@@ -28,7 +28,7 @@ do {
     // Handle errors
 }```
  */
-public final class Pipeline: Decodable {
+public final class Pipeline: Decodable,CustomStringConvertible {
     /// The unique identifier of the pipeline.
     public var id: String
 
@@ -65,6 +65,21 @@ public final class Pipeline: Decodable {
         networking = Networking()
         logger = ParrotLogger(category: "AiXplainKit | Pipeline")
     }
+    
+    
+    public var description: String {
+        var description = "Pipeline:\n"
+        description += "  ID: \(id)\n"
+        description += "  <- Input:\n"
+        inputNodes.forEach{ node in
+            description += "\t[\(node.number)]\(node.label):\(node.type)\n"
+        }
+        description += "  -> output:\n"
+        outputNodes.forEach{ node in
+            description += "\t[\(node.number)]\(node.label):\(node.type)\n"
+        }
+        return description
+    }
 
 }
 
@@ -82,7 +97,7 @@ extension Pipeline {
      - Returns: A `PipelineOutput` object representing the output of the pipeline.
      - Throws: Throws an error if the pipeline execution fails.
      */
-    public func run(_ pipelineInput: PipelineInput, id: String = "model_process", parameters: [String: String]? = nil) async throws -> PipelineOutput {
+    public func run(_ pipelineInput: PipelineInput, id: String = "model_process", parameters: PipelineRunParameters = PipelineRunParameters.defaultParameters) async throws -> PipelineOutput {
         let headers = try self.networking.buildHeader()
         let payload = try await pipelineInput.generateInputPayloadForPipeline()
 
@@ -90,6 +105,7 @@ extension Pipeline {
             throw ModelError.missingModelRunURL
         }
 
+        self.networking.parameters = parameters
         let endpoint = Networking.Endpoint.pipelineRun(pipelineIdentifier: self.id).path
         guard let url = URL(string: url.absoluteString + endpoint) else {
             throw PipelineError.invalidURL(url: url.absoluteString)
@@ -109,7 +125,7 @@ extension Pipeline {
             throw PipelineError.failToDecodeRunResponse
         }
         logger.info("Successfully created a execution")
-        return try await self.polling(from: pollingURL)
+        return try await self.polling(from: pollingURL,maxRetry: parameters.maxPollingRetries,waitTime: parameters.pollingWaitTimeInSeconds)
     }
 
     /**
