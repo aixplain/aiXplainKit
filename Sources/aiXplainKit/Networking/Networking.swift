@@ -6,12 +6,13 @@
 //
 
 import Foundation
+import OSLog
 
 /// A class responsible for making network requests.
 public class Networking {
 
     public var parameters: NetworkingParametersProtocol = NetworkingParameters()
-    private let logger = ParrotLogger(category: "AiXplainKit | Networking")
+    private let logger = Logger(subsystem: "AiXplainKit", category: "Networking")
 
     /// Fetches data from the specified URL using the GET method.
     ///   - url: The URL of the resource to fetch data from.

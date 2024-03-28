@@ -22,4 +22,11 @@ public struct ModelRunParameters: RunParameters, NetworkingParametersProtocol {
     public var maxNetworkCallRetries: Int = 2
 
     public static let defaultParameters: ModelRunParameters = ModelRunParameters()
+
+    public init(pollingWaitTimeInSeconds: TimeInterval = 0.5, maxPollingRetries: Int = 300, networkTimeoutInSecondsInterval: TimeInterval = 10, maxNetworkCallRetries: Int = 2) {
+        self.pollingWaitTimeInSeconds = pollingWaitTimeInSeconds
+        self.maxPollingRetries = maxPollingRetries
+        self.networkTimeoutInSecondsInterval = networkTimeoutInSecondsInterval
+        self.maxNetworkCallRetries = maxNetworkCallRetries
+    }
 }

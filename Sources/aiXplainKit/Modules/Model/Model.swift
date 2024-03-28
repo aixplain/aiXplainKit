@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 /**
  This is ready-to-use AI model.
@@ -57,7 +58,7 @@ public final class Model: DecodableAsset, CustomStringConvertible {
     /// The networking service is responsible for making API calls and handling URL sessions.
     var networking: Networking
 
-    private let logger: ParrotLogger
+    private let logger: Logger
 
     public var description: String {
         var description = "Model:\n"
@@ -90,7 +91,7 @@ public final class Model: DecodableAsset, CustomStringConvertible {
         privacy = nil
         license = nil
 
-        logger = ParrotLogger(category: "AiXplainKit | Model(\(name)")
+        logger = Logger(subsystem: "AiXplain", category: "Model(\(name)")
 
         networking = Networking()
     }
@@ -114,7 +115,7 @@ public final class Model: DecodableAsset, CustomStringConvertible {
         self.license = license
         self.privacy = privacy
         self.pricing = pricing
-        self.logger = ParrotLogger(category: "AiXplainKit | Model(\(name))")
+        self.logger = Logger(subsystem: "AiXplain", category: "Model(\(name)")
         self.networking = networking
     }
 

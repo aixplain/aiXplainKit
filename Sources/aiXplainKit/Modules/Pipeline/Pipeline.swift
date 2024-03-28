@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 /**
 A custom pipeline that can be created on the aiXplain Platform.
@@ -45,7 +46,7 @@ public final class Pipeline: Decodable, CustomStringConvertible {
     var networking: Networking
 
     /// The logger used for logging pipeline events.
-    private let logger: ParrotLogger
+    private let logger: Logger
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -63,7 +64,7 @@ public final class Pipeline: Decodable, CustomStringConvertible {
         inputNodes = try container.decode([PipelineNode].self, forKey: .nodes).filter {$0.type == "INPUT"}
         outputNodes = try container.decode([PipelineNode].self, forKey: .nodes).filter {$0.type == "OUTPUT"}
         networking = Networking()
-        logger = ParrotLogger(category: "AiXplainKit | Pipeline")
+        logger = Logger(subsystem: "AiXplain", category: "Pipeline")
     }
 
     public var description: String {
@@ -141,7 +142,6 @@ extension Pipeline {
         let headers = try self.networking.buildHeader()
 
         var itr = 0
-        logger.logLevel = .debug
         logger.info("Starting polling job")
         repeat {
             let response = try await networking.get(url: url, headers: headers)

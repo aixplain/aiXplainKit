@@ -6,21 +6,22 @@
 //
 
 import Foundation
+import OSLog
 
 /// This class is responsible for managing the file uploads related operations for the Model and Pipeline.
 internal final class FileUploadManager {
 
     let networking: Networking
-    let logger: ParrotLogger
+    let logger: Logger
 
     init() {
         self.networking = Networking()
-        self.logger = ParrotLogger(category: "AiXplainKit | FileManager")
+        self.logger = Logger(subsystem: "AiXplain", category: "FileManager")
     }
 
     init(networking: Networking) {
         self.networking = networking
-        self.logger =  ParrotLogger(category: "AiXplainKit | FileManager")
+        self.logger = Logger(subsystem: "AiXplain", category: "FileManager")
     }
 
     // Uploads a file located at the specified local URL.
@@ -35,7 +36,7 @@ internal final class FileUploadManager {
     ///   - Other errors related to networking, payload generation, or missing bucket name.
     func uploadFile(at localUrl: URL, temporary: Bool = true, tags: [String: String] = [:], license: License? = nil) async throws -> URL {
         if try FileSizeLimit.check(fileAt: localUrl) == false {
-            logger.error(FileError.fileSizeExceedsLimit.localizedDescription)
+            logger.error("\(FileError.fileSizeExceedsLimit.errorDescription)")
             throw FileError.fileSizeExceedsLimit
         }
 
@@ -48,12 +49,12 @@ internal final class FileUploadManager {
         let response = try await networking.put(url: preSignedURL, body: payload, headers: headers)
 
         guard let httpResponse = response.1 as? HTTPURLResponse else {
-            logger.error(NetworkingError.invalidHttpResponse.localizedDescription)
+            logger.error("\(NetworkingError.invalidHttpResponse.localizedDescription)")
             throw NetworkingError.invalidHttpResponse
         }
 
         if httpResponse.statusCode != 200 {
-            logger.error(NetworkingError.invalidStatusCode(statusCode: httpResponse.statusCode).localizedDescription)
+            logger.error("\(NetworkingError.invalidStatusCode(statusCode: httpResponse.statusCode).localizedDescription)")
             throw NetworkingError.invalidStatusCode(statusCode: httpResponse.statusCode)
         }
 

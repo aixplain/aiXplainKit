@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import OSLog
 
 /// A class responsible for fetching model information from the backend.
 public final class ModelProvider {
 
-    private let logger = ParrotLogger(category: "AiXplainKit | ModelProvider")
+    private let logger = Logger(subsystem: "AiXplinaKit", category: "ModelProvider")
 
     var networking = Networking()
 
@@ -47,13 +48,13 @@ public final class ModelProvider {
         }
 
         do {
-            logger.debug(String(data: response.0, encoding: .utf8)!)
+            logger.debug("\(String(data: response.0, encoding: .utf8)!)")
             let fetchedModel = try JSONDecoder().decode(Model.self, from: response.0)
 
             logger.info("\(fetchedModel.name) fetched")
             return fetchedModel
         } catch {
-            logger.error(String(describing: error))
+            logger.error("\(String(describing: error))")
             throw error
         }
 

@@ -70,4 +70,34 @@ final class ModelTests: XCTestCase {
         }
     }
 
+    func test_model_init() {
+        let testedInitModel = Model(id: "MOCKMODEL",
+                                    name: "Mock",
+                                    description: "Mock Model to unit testing",
+                                    supplier: Supplier(id: 0, name: "123", code: "123"),
+                                    version: "0",
+                                    pricing: Pricing(price: 0, unitType: "TOKENS"),
+                                    networking: MockNetworking())
+
+        XCTAssertEqual(testedInitModel.id, "MOCKMODEL")
+        XCTAssertEqual(testedInitModel.name, "Mock")
+        XCTAssertEqual(testedInitModel.supplier.id, 0)
+        XCTAssertEqual(testedInitModel.supplier.name, "123")
+        XCTAssertEqual(testedInitModel.supplier.code, "123")
+        XCTAssertEqual(testedInitModel.version, "0")
+        XCTAssertEqual(testedInitModel.pricing.price, 0)
+        XCTAssertEqual(testedInitModel.pricing.unitType, "TOKENS")
+    }
+
+    func test_modelRun_MissingModelRunUrlError() async {
+        APIKeyManager.shared.TEAM_API_KEY = ""
+        APIKeyManager.shared.MODELS_RUN_URL = nil
+
+        do {
+            _ = try await testedModel.run("-")
+        } catch {
+            XCTAssertTrue(error as! ModelError == ModelError.missingModelRunURL)
+        }
+    }
+
 }
