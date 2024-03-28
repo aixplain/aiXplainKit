@@ -1,33 +1,49 @@
-//
-//  File.swift
-//  
-//
-//  Created by Joao Pedro Monteiro Maia on 19/03/24.
-//
+/*
+ AiXplainKit Library.
+ ---
+ 
+ aiXplain SDK enables Swift programmers to add AI functions
+ to their software.
+ 
+ Copyright 2024 The aiXplain SDK authors
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ AUTHOR: João Pedro Maia
+ */
 
 import Foundation
 import OSLog
 
 /**
-A custom pipeline that can be created on the aiXplain Platform.
-
-## Overview
-The `Pipeline` class represents a custom pipeline on the aiXplain Platform. It provides functionality to run the pipeline and handle its execution.
-
-## Usage
-1. Initialize a `Pipeline` object with the necessary parameters.
-2. Call the `run(_:id:parameters:)` method to execute the pipeline.
-
-## Example
-```swift
-let pipeline = PipelineFactory.get("PipelineID")
-let input = "Hello World"
-do {
-    let output = try await pipeline.run(input)
-    // Handle pipeline output
-} catch {
-    // Handle errors
-}```
+ A custom pipeline that can be created on the aiXplain Platform.
+ 
+ ## Overview
+ The `Pipeline` class represents a custom pipeline on the aiXplain Platform. It provides functionality to run the pipeline and handle its execution.
+ 
+ ## Usage
+ 1. Initialize a `Pipeline` object with the necessary parameters.
+ 2. Call the `run(_:id:parameters:)` method to execute the pipeline.
+ 
+ ## Example
+ ```swift
+ let pipeline = PipelineFactory.get("PipelineID")
+ let input = "Hello World"
+ do {
+ let output = try await pipeline.run(input)
+ // Handle pipeline output
+ } catch {
+ // Handle errors
+ }```
  */
 public final class Pipeline: Decodable, CustomStringConvertible {
     /// The unique identifier of the pipeline.
@@ -89,11 +105,11 @@ extension Pipeline {
 
     /**
      Runs the pipeline with the provided input.
-
+     
      - Parameters:
-        - pipelineInput: The input data for the pipeline.
-        - executionIdentifier: The identifier for the pipeline execution (default value: "model_process").
-        - parameters: Additional parameters for the pipeline execution (default value: nil).
+     - pipelineInput: The input data for the pipeline.
+     - executionIdentifier: The identifier for the pipeline execution (default value: "model_process").
+     - parameters: Additional parameters for the pipeline execution (default value: nil).
      - Returns: A `PipelineOutput` object representing the output of the pipeline.
      - Throws: Throws an error if the pipeline execution fails.
      */
@@ -132,9 +148,9 @@ extension Pipeline {
      Polls the specified URL for pipeline output.
      
      - Parameters:
-        - url: The URL to poll for pipeline output.
-        - maxRetry: The maximum number of polling retries (default value: 300).
-        - waitTime: The time to wait between polling attempts in seconds (default value: 0.5).
+     - url: The URL to poll for pipeline output.
+     - maxRetry: The maximum number of polling retries (default value: 300).
+     - waitTime: The time to wait between polling attempts in seconds (default value: 0.5).
      - Returns: A `PipelineOutput` object representing the output of the pipeline.
      - Throws: Throws an error if polling fails or times out.
      */
@@ -145,22 +161,20 @@ extension Pipeline {
         logger.info("Starting polling job")
         repeat {
             let response = try await networking.get(url: url, headers: headers)
-            print(String(data: response.0, encoding: .utf8))
+            print(String(data: response.0, encoding: .utf8) ?? "-")
             logger.debug("(\(itr)/\(maxRetry))Polling...")
             if let json = try? JSONSerialization.jsonObject(with: response.0, options: []) as? [String: Any],
-              let completed = json["completed"] as? Bool {
+               let completed = json["completed"] as? Bool {
                 if let _ = json["error"] as? String, let supplierError = json["supplierError"] as? String {
                     throw ModelError.supplierError(error: supplierError)
                 }
 
                 if completed {
-                    do {
-                        let partialyDecodedResponse = PipelineOutput(from: response.0)
-                        logger.info("Polling job finished.")
-                        return partialyDecodedResponse
-                    } catch {
-                        throw PipelineError.failToDecodeModelOutputDuringPollingPhase(error: String(describing: error))
-                    }
+
+                    let partialyDecodedResponse = PipelineOutput(from: response.0)
+                    logger.info("Polling job finished.")
+                    return partialyDecodedResponse
+
                 }
             }
 
