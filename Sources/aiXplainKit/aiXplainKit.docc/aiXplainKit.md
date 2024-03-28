@@ -26,6 +26,7 @@ Alternatively, you can set the API key as an environment variable in Xcode. This
 ### Essential
 
 - <doc:TeamAPIKeyGuide>
-- <doc:aiXplainTutorials>
+- <doc:aiXplain101>
+- <doc:PipelineEssential>
 
 

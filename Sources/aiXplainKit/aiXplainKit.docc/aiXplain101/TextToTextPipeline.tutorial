@@ -1,0 +1,74 @@
+@Tutorial(time: 10) {
+    @Intro(title: "Interacting with a Text-to-Text Pipeline") {
+        This tutorial will guide you through the process of interacting with a text-to-text pipeline from aiXplain. We'll learn how to set up the pipeline, run it with input text, and parse the output to extract the translated text.
+
+    }
+    
+    @Section(title: "Setting Up the Pipeline") {
+        @ContentAndMedia {
+            The first step is to obtain an instance of the `Pipeline` object.
+        }
+        
+        @Steps {
+            @Step{
+                The first step is to obtain an instance of the `Pipeline` object. This is achieved using the `PipelineProvider` class. Be sure that you created a pipeline in aiXplain plataform before.
+                
+                @Code(name: "HelloPipeline.swift", file: TextToTextPipeline1.swift)
+            }
+            
+            @Step {
+                The `get` method fetches the pipeline with the specified `textToTextPipelineID`. 
+                
+                Note that the code uses a `try!` construct to handle potential errors. In production code, it's recommended to use proper error handling techniques.
+                
+                @Code(name: "HelloPipeline.swift", file: TextToTextPipeline1.swift)
+            }
+        }
+    }
+        
+    @Section(title: "Running the Pipeline") {
+        @ContentAndMedia {
+            We will be using a Translation pipeline.
+        }
+            
+        @Steps {
+            @Step {
+                After verifying the pipeline setup, you can execute it by calling the `run` method:
+                
+                @Code(name: "HelloPipeline.swift", file: TextToTextPipeline2.swift)
+            }
+            
+            @Step {
+                The `run` method takes the input text as an argument and returns a `PipelineOutput` object containing the processed data and metadata. 
+                
+                Again, proper error handling should be employed in production code.
+                
+                @Code(name: "HelloPipeline.swift", file: TextToTextPipeline2.swift)
+            }
+        }
+    }
+    
+    
+    @Section(title: "Parsing the Pipeline") {
+        @ContentAndMedia {
+            The `PipelineOutput` object contains the raw data from the pipeline execution. To extract the translated text, you'll need to parse this raw data using `JSONSerialization`
+            
+            This output differs from the `ModelOutput` because here we do not have a standard decoder. Therefore, for each Pipeline, we need to decode it from the `rawData` property.
+        }
+            
+        @Steps {
+            @Step {
+                You can always print the structure before parsing it.
+                
+                @Code(name: "HelloPipeline.swift", file: TextToTextPipeline3.swift)
+            }
+            
+            @Step {
+                The code traverses the JSON structure, extracting the necessary values until it reaches the ouput:
+                
+                @Code(name: "HelloPipeline.swift", file: TextToTextPipeline4.swift)
+            }
+        }
+    }
+}
+
