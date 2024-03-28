@@ -26,31 +26,31 @@ import Foundation
 enum PipelineError: Error, Equatable {
     /// No API key was provided for making API calls.
     case missingAPIKey
-
+    
     /// No backend URL was provided for the backend service.
     case missingBackendURL
-
+    
     /// The provided URL is malformed.
     case invalidURL(url: String?)
-
+    
     /// Error during the recoding of model.run response while schedulling the run.
     case failToDecodeRunResponse
-
+    
     /// This error is thrown when the model is polling the response for the job created at `Model.run` did not receive a response/output in the desired time.
     case pollingTimeoutOnModelResponse(pollingURL: URL)
-
+    
     /// Fail to decode ModelOutput during the polling phase.
     case failToDecodeModelOutputDuringPollingPhase(error: String?)
-
+    
     /// Error reported by the supplier or service.
     case supplierError(error: String)
-
+    
     /// An unsupported value type was encountered during input payload generation.
     case typeNotRecognizedWhileCreatingACombinedInput
-
+    
     /// An error occurred during input encoding.
     case inputEncodingError
-
+    
     var localizedDescription: String {
         switch self {
         case .missingAPIKey:
