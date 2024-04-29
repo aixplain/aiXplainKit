@@ -50,6 +50,9 @@ enum ModelError: Error, Equatable {
 
     /// Error reportet when using a file/URL as input and something went wrong
     case failToGenerateAFilePayload(error: String)
+    
+    /// An unsupported value type was encountered while transforming the dictonary into a model input
+    case typeNotRecognizedWhileCreatingACombinedInput
 
     var localizedDescription: String {
         switch self {
@@ -72,6 +75,8 @@ enum ModelError: Error, Equatable {
             return "No URL was provided for the Model Run service. Please set a URL using `AiXplainKit.keyManager`."
         case .failToGenerateAFilePayload(error: let error):
             return "Something went wrong while generating a payload for the model from a file: \(error)"
+        case .typeNotRecognizedWhileCreatingACombinedInput:
+            return "An unsupported value type was encountered during dictonary model input generation. Please ensure that all values in the dictonary are either URLs or strings."
         }
     }
 }

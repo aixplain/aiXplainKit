@@ -66,6 +66,9 @@ public final class ModelProvider {
         do {
             logger.debug("\(String(data: response.0, encoding: .utf8)!)")
             let fetchedModel = try JSONDecoder().decode(Model.self, from: response.0)
+            if fetchedModel.id.count <= 1 {
+                fetchedModel.id = modelID
+            }
 
             logger.info("\(fetchedModel.name) fetched")
             return fetchedModel

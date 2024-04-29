@@ -23,11 +23,29 @@
 
 import Foundation
 
-extension Dictionary: ModelInput where Key == String, Value == Any {
+extension Dictionary: ModelInput where Key == String, Value == ModelInput {
     public func generateInputPayloadForModel() async throws -> Data {
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: self, options: []) else {
-            return Data()
+        var parsedSequence: [String:String] = [:]
+        let fileUploadManager = FileUploadManager()
+
+        for (_, keyValuePair) in self.enumerated() {
+            let (key, value) = keyValuePair
+
+            switch value {
+            case let url as URL:
+                let remoteURL = try await fileUploadManager.uploadDataIfNeedIt(from: url)
+                parsedSequence.updateValue(remoteURL.absoluteString, forKey: key)
+            case let string as String:
+                parsedSequence.updateValue(string, forKey: key)
+            default:
+                throw PipelineError.typeNotRecognizedWhileCreatingACombinedInput
+            }
         }
+
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: parsedSequence, options: []) else {
+            throw PipelineError.inputEncodingError
+        }
+
         return jsonData
     }
 }

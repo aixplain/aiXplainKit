@@ -48,7 +48,7 @@ do {
 public final class Model: DecodableAsset, CustomStringConvertible {
 
     /// Unique identifier for the model.
-    public let id: String
+    public var id: String
 
     /// Name of the model.
     public let name: String
@@ -95,20 +95,24 @@ public final class Model: DecodableAsset, CustomStringConvertible {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        id = try container.decode(String.self, forKey: .id)
+        id = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
         name = try container.decode(String.self, forKey: .name)
         modelDescription = try container.decodeIfPresent(String.self, forKey: .description) ?? "An ML Model"
-        supplier = try container.decode(Supplier.self, forKey: .supplier)
+
+        // Check if the "supplier" key is present and not an empty object
+        if var supplierContainer = try? container.nestedUnkeyedContainer(forKey: .supplier) {
+            supplier = try supplierContainer.decode(Supplier.self)
+        } else {
+            // Provide a default value for the supplier if it's missing or an empty object
+            supplier = Supplier(id: 0, name: "no", code: "")
+        }
 
         version = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .version).decodeIfPresent(String.self, forKey: .id) ?? "-"
-
         pricing = try container.decode(Pricing.self, forKey: .pricing)
 
         privacy = nil
         license = nil
-
         logger = Logger(subsystem: "AiXplain", category: "Model(\(name)")
-
         networking = Networking()
     }
 
