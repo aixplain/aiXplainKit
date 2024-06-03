@@ -29,7 +29,7 @@ public struct Supplier: Codable {
       let id: Int
 
       /// The name of the supplier.
-      let name: String
+    public let name: String
 
       /// A unique code associated with the supplier.
       let code: String

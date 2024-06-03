@@ -45,10 +45,10 @@ do {
     // Handle errors
 }```
  */
-public final class Model: DecodableAsset, CustomStringConvertible {
+public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertible {
 
     /// Unique identifier for the model.
-    public var id: String
+     public var id: String
 
     /// Name of the model.
     public let name: String
@@ -99,13 +99,8 @@ public final class Model: DecodableAsset, CustomStringConvertible {
         name = try container.decode(String.self, forKey: .name)
         modelDescription = try container.decodeIfPresent(String.self, forKey: .description) ?? "An ML Model"
 
-        // Check if the "supplier" key is present and not an empty object
-        if var supplierContainer = try? container.nestedUnkeyedContainer(forKey: .supplier) {
-            supplier = try supplierContainer.decode(Supplier.self)
-        } else {
-            // Provide a default value for the supplier if it's missing or an empty object
-            supplier = Supplier(id: 0, name: "no", code: "")
-        }
+        // Decode the supplier field as a keyed container
+        supplier = try container.decodeIfPresent(Supplier.self, forKey: .supplier) ?? Supplier(id: 0, name: "no", code: "")
 
         version = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .version).decodeIfPresent(String.self, forKey: .id) ?? "-"
         pricing = try container.decode(Pricing.self, forKey: .pricing)
@@ -138,6 +133,19 @@ public final class Model: DecodableAsset, CustomStringConvertible {
         self.logger = Logger(subsystem: "AiXplain", category: "Model(\(name)")
         self.networking = networking
     }
+    
+    
+    public func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(id, forKey: .id)
+            try container.encode(name, forKey: .name)
+            try container.encode(modelDescription, forKey: .description)
+            try container.encode(supplier, forKey: .supplier)
+            try container.encode(version, forKey: .version)
+            try container.encode(license, forKey: .license)
+            try container.encode(privacy, forKey: .privacy)
+            try container.encode(pricing, forKey: .pricing)
+        }
 
     // Private enum for coding keys to improve readability and maintainability.
     private enum CodingKeys: String, CodingKey {

@@ -78,5 +78,53 @@ public final class ModelProvider {
         }
 
     }
+    
+    //TODO: Docs
+    public func list(_ query:ModelQuery) async throws -> [Model]{
+        let headers: [String: String] = try networking.buildHeader()
+
+        guard let url = APIKeyManager.shared.BACKEND_URL else {
+            throw ModelError.missingBackendURL
+        }
+        
+        let endpoint = Networking.Endpoint.paginateModels
+        guard let url = URL(string: url.absoluteString + endpoint.path) else {
+            throw ModelError.invalidURL(url: url.absoluteString + endpoint.path)
+        }
+        
+        let body = try query.buildQuery()
+        let response = try await networking.post(url: url, headers: headers, body: body)
+
+        if let httpUrlResponse = response.1 as? HTTPURLResponse,
+           httpUrlResponse.statusCode != 201 {
+            throw NetworkingError.invalidStatusCode(statusCode: httpUrlResponse.statusCode)
+        }
+        
+        
+        if let stringedResponse = String(data: response.0, encoding: .utf8){
+            return parseModelQueryResponse(stringedResponse) ?? []
+        }
+        return []
+        
+    }
+    
+    //TODO: Docs
+    private func parseModelQueryResponse(_ jsonData: String) -> [Model]? {
+        guard let data = jsonData.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+              let itemsData = json["items"] as? [[String: Any]] else {
+            return nil
+        }
+
+        let items = itemsData.compactMap { itemDict -> Model? in
+            guard let itemData = try? JSONSerialization.data(withJSONObject: itemDict, options: []) else {
+                return nil
+            }
+
+            return try? JSONDecoder().decode(Model.self, from: itemData)
+        }
+
+        return items
+    }
 
 }
