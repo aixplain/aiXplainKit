@@ -33,5 +33,27 @@ public struct Supplier: Codable {
 
       /// A unique code associated with the supplier.
       let code: String
+    
+    
+    init(id: Int, name: String, code: String) {
+        self.id = id
+        self.name = name
+        self.code = code
+    }
+    
+    /// Creates a new `Supplier` instance by decoding from the given decoder.
+    /// - Parameter decoder: The decoder to read data from.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        id = try container.decodeIfPresent(Int.self, forKey: .id) ?? UUID().uuidString.hashValue
+        name = try container.decodeIfPresent(String.self, forKey: .name) ?? "unknown"
+        code = try container.decodeIfPresent(String.self, forKey: .code) ?? "unknown"
+    }
+
+    /// Defines the coding keys for the `Supplier` struct.
+    private enum CodingKeys: String, CodingKey {
+        case id, name, code
+    }
 
 }
