@@ -48,7 +48,7 @@ do {
 public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertible {
 
     /// Unique identifier for the model.
-     public var id: String
+    public var id: String
 
     /// Name of the model.
     public let name: String
@@ -71,8 +71,14 @@ public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertibl
     /// Information about the model's pricing.
     public let pricing: Pricing
 
-    /// The networking service is responsible for making API calls and handling URL sessions.
+    /// The networking service responsible for making API calls and handling URL sessions.
     var networking: Networking
+    
+    /// The entity or platform hosting the model.
+    public let hostedBy: String
+    
+    /// The organization or individual who developed the model.
+    public let developedBy: String
 
     private let logger: Logger
 
@@ -81,7 +87,8 @@ public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertibl
         description += "  ID: \(id)\n"
         description += "  Name: \(name)\n"
         description += "  Description: \(self.modelDescription)\n"
-        description += "  Supplier: \(supplier)\n"
+        description += "  Hosted By: \(hostedBy)\n"
+        description += "  Developed By: \(developedBy)\n"
         description += "  Version: \(version)\n"
         description += "  Pricing: \(pricing)\n"
         return description
@@ -98,20 +105,19 @@ public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertibl
         id = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
         name = try container.decode(String.self, forKey: .name)
         modelDescription = try container.decodeIfPresent(String.self, forKey: .description) ?? "An ML Model"
-
-        // Decode the supplier field as a keyed container
         supplier = try container.decodeIfPresent(Supplier.self, forKey: .supplier) ?? Supplier(id: 0, name: "no", code: "")
-
         version = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .version).decodeIfPresent(String.self, forKey: .id) ?? "-"
         pricing = try container.decode(Pricing.self, forKey: .pricing)
-
+        hostedBy = try container.decode(String.self, forKey: .hostedBy)
+        developedBy = try container.decode(String.self, forKey: .developedBy)
+        
         privacy = nil
         license = nil
         logger = Logger(subsystem: "AiXplain", category: "Model(\(name)")
         networking = Networking()
     }
-
-    /// Creates a new `MLModel` instance with the provided parameters.
+    
+    /// Creates a new `Model` instance with the provided parameters.
     /// - Parameters:
     ///   - id: Unique identifier for the model.
     ///   - name: Name of the model.
@@ -121,7 +127,10 @@ public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertibl
     ///   - license: Optional license information associated with the model.
     ///   - privacy: Optional privacy information associated with the model.
     ///   - pricing: Information about the model's pricing.
-    public init(id: String, name: String, description: String, supplier: Supplier, version: String, license: License? = nil, privacy: Privacy? = nil, pricing: Pricing, networking: Networking) {
+    ///   - hostedBy: The entity or platform hosting the model.
+    ///   - developedBy: The organization or individual who developed the model.
+    ///   - networking: Networking service used for API calls.
+    public init(id: String, name: String, description: String, supplier: Supplier, version: String, license: License? = nil, privacy: Privacy? = nil, pricing: Pricing, hostedBy: String, developedBy: String, networking: Networking) {
         self.id = id
         self.name = name
         self.modelDescription = description
@@ -130,28 +139,30 @@ public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertibl
         self.license = license
         self.privacy = privacy
         self.pricing = pricing
+        self.hostedBy = hostedBy
+        self.developedBy = developedBy
         self.logger = Logger(subsystem: "AiXplain", category: "Model(\(name)")
         self.networking = networking
     }
     
-    
     public func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(id, forKey: .id)
-            try container.encode(name, forKey: .name)
-            try container.encode(modelDescription, forKey: .description)
-            try container.encode(supplier, forKey: .supplier)
-            try container.encode(version, forKey: .version)
-            try container.encode(license, forKey: .license)
-            try container.encode(privacy, forKey: .privacy)
-            try container.encode(pricing, forKey: .pricing)
-        }
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(name, forKey: .name)
+        try container.encode(modelDescription, forKey: .description)
+        try container.encode(supplier, forKey: .supplier)
+        try container.encode(version, forKey: .version)
+        try container.encode(license, forKey: .license)
+        try container.encode(privacy, forKey: .privacy)
+        try container.encode(pricing, forKey: .pricing)
+        try container.encode(hostedBy, forKey: .hostedBy)
+        try container.encode(developedBy, forKey: .developedBy)
+    }
 
     // Private enum for coding keys to improve readability and maintainability.
     private enum CodingKeys: String, CodingKey {
-        case id, name, description, supplier, version, license, privacy, pricing
+        case id, name, description, supplier, version, license, privacy, pricing, hostedBy, developedBy
     }
-
 }
 
 // MARK: - Model Execution
