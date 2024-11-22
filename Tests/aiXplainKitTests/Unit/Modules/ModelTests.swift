@@ -10,11 +10,19 @@ import XCTest
 
 final class ModelTests: XCTestCase {
 
-    let testedModel = Model(id: "MOCKMODEL", name: "Mock",
-                            description: "Mock Model to unit testing",
-                            supplier: Supplier(id: 0, name: "123", code: "123"),
-                            version: "0",
-                            pricing: Pricing(price: 0, unitType: "TOKENS"), networking: MockNetworking())
+    let testedModel = Model(
+        id: "testId",
+        name: "Test Model",
+        description: "This is a test model for mocking purposes.",
+        supplier: Supplier(id: 123, name: "Test Supplier", code: "123"),
+        version: "1.0.0",
+        license: nil,
+        privacy: nil,
+        pricing: Pricing(price: 1, unitType: nil),
+        hostedBy: "TestHost",
+        developedBy: "TestDeveloper",
+        networking: MockNetworking()
+    )
 
     override func tearDown() {
         testedModel.networking = MockNetworking()
@@ -71,13 +79,19 @@ final class ModelTests: XCTestCase {
     }
 
     func test_model_init() {
-        let testedInitModel = Model(id: "MOCKMODEL",
-                                    name: "Mock",
-                                    description: "Mock Model to unit testing",
-                                    supplier: Supplier(id: 0, name: "123", code: "123"),
-                                    version: "0",
-                                    pricing: Pricing(price: 0, unitType: "TOKENS"),
-                                    networking: MockNetworking())
+        let testedInitModel = Model(
+            id: "testId",
+            name: "Test Model",
+            description: "This is a test model for mocking purposes.",
+            supplier: Supplier(id: 123, name: "Test Supplier", code: "123"),
+            version: "1.0.0",
+            license: nil,
+            privacy: nil,
+            pricing: Pricing(price: 1, unitType: nil),
+            hostedBy: "TestHost",
+            developedBy: "TestDeveloper",
+            networking: MockNetworking()
+        )
 
         XCTAssertEqual(testedInitModel.id, "MOCKMODEL")
         XCTAssertEqual(testedInitModel.name, "Mock")

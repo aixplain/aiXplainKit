@@ -38,12 +38,12 @@ extension Dictionary: ModelInput where Key == String, Value == ModelInput {
             case let string as String:
                 parsedSequence.updateValue(string, forKey: key)
             default:
-                throw PipelineError.typeNotRecognizedWhileCreatingACombinedInput
+                throw ModelError.typeNotRecognizedWhileCreatingACombinedInput
             }
         }
 
         guard let jsonData = try? JSONSerialization.data(withJSONObject: parsedSequence, options: []) else {
-            throw PipelineError.inputEncodingError
+            throw ModelError.inputEncodingError 
         }
 
         return jsonData

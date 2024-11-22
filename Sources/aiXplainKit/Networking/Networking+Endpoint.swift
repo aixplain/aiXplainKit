@@ -47,6 +47,8 @@ extension Networking {
         case pipelineRun(pipelineIdentifier: String)
         
         case paginateModels
+        
+        case agents(agentIdentifier: String)
 
         /// The path for the endpoint
         var path: String {
@@ -67,6 +69,8 @@ extension Networking {
                 return "/assets/pipeline/execution/run/\(pipelineIdentifier)"
             case .paginateModels:
                 return "/sdk/models/paginate"
+            case .agents(agentIdentifier: let agentIdentifier):
+                return "/sdk/agents/\(agentIdentifier)"
             }
         }
     }
