@@ -81,7 +81,7 @@ final class ModelTests: XCTestCase {
     func test_model_init() {
         let testedInitModel = Model(
             id: "testId",
-            name: "Test Model",
+            name: "Test Model", 
             description: "This is a test model for mocking purposes.",
             supplier: Supplier(id: 123, name: "Test Supplier", code: "123"),
             version: "1.0.0",
@@ -93,14 +93,14 @@ final class ModelTests: XCTestCase {
             networking: MockNetworking()
         )
 
-        XCTAssertEqual(testedInitModel.id, "MOCKMODEL")
-        XCTAssertEqual(testedInitModel.name, "Mock")
-        XCTAssertEqual(testedInitModel.supplier.id, 0)
-        XCTAssertEqual(testedInitModel.supplier.name, "123")
+        XCTAssertEqual(testedInitModel.id, "testId")
+        XCTAssertEqual(testedInitModel.name, "Test Model")
+        XCTAssertEqual(testedInitModel.supplier.id, 123)
+        XCTAssertEqual(testedInitModel.supplier.name, "Test Supplier")
         XCTAssertEqual(testedInitModel.supplier.code, "123")
-        XCTAssertEqual(testedInitModel.version, "0")
-        XCTAssertEqual(testedInitModel.pricing.price, 0)
-        XCTAssertEqual(testedInitModel.pricing.unitType, "TOKENS")
+        XCTAssertEqual(testedInitModel.version, "1.0.0")
+        XCTAssertEqual(testedInitModel.pricing.price, 1)
+        XCTAssertNil(testedInitModel.pricing.unitType)
     }
 
     func test_modelRun_MissingModelRunUrlError() async {

@@ -60,13 +60,7 @@ final class ModelFunctionalTests: XCTestCase {
         XCTAssertEqual(llamaModel.pricing.unitType, "TOKEN")
         XCTAssertNil(llamaModel.pricing.unitScale)
 
-        var description = "Model:\n"
-        description += "  ID: \(llamaModel.id)\n"
-        description += "  Name: \(llamaModel.name)\n"
-        description += "  Description: \(llamaModel.modelDescription)\n"
-        description += "  Supplier: \(llamaModel.supplier)\n"
-        description += "  Version: \(llamaModel.version)\n"
-        description += "  Pricing: \(llamaModel.pricing)\n"
+        var description = "Model:\n  ID: 6543cb991f695e72028e9428\n  Name: Llama 2 7B\n  Description: Creates coherent and contextually relevant textual content based on prompts or certain parameters. Useful for chatbots, content creation, and data augmentation.\n  Hosted By: aiXplain\n  Developed By: aiXplain\n  Version: llama-2-7b-hf\n  Pricing: Pricing(price: 5e-06, unitType: Optional(\"TOKEN\"), unitScale: nil)\n"
 
         XCTAssertTrue(llamaModel.description == description)
     }
