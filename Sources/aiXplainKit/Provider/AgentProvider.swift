@@ -110,4 +110,58 @@ public final class AgentProvider {
             throw error
         }
     }
+    
+    
+    /// Retrieves a list of all available agents.
+    ///
+    /// This method fetches all agents accessible to the authenticated user from the aiXplain platform.
+    ///
+    /// - Returns: An array of `Agent` objects representing the available agents.
+    ///
+    /// - Throws:
+    ///   - `AgentsError.missingBackendURL` if the backend URL is not available.
+    ///   - `AgentsError.invalidURL` if the constructed URL is invalid.
+    ///   - `NetworkingError.invalidStatusCode` if the response status code is not 200.
+    ///   - `DecodingError` if the response cannot be decoded into an array of `Agent` objects.
+    ///
+    /// # Example
+    /// ```swift
+    /// do {
+    ///     let agentProvider = AgentProvider()
+    ///     let agents = try await agentProvider.list()
+    ///     print("Found \(agents.count) agents")
+    /// } catch {
+    ///     print("Failed to fetch agents: \(error)")
+    /// }
+    /// ```
+    public func list() async throws -> [Agent] {
+        let headers: [String: String] = try networking.buildHeader()
+        
+        guard let url = APIKeyManager.shared.BACKEND_URL else {
+            throw AgentsError.missingBackendURL
+        }
+        
+        let endpoint = Networking.Endpoint.paginateAgents
+        guard let url = URL(string: url.absoluteString + endpoint.path) else {
+            throw AgentsError.invalidURL(url: url.absoluteString + endpoint.path)
+        }
+
+        let response = try await networking.get(url: url, headers: headers)
+        
+        if let httpUrlResponse = response.1 as? HTTPURLResponse,
+           httpUrlResponse.statusCode != 200 {
+            throw NetworkingError.invalidStatusCode(statusCode: httpUrlResponse.statusCode)
+        }
+
+        do {
+            logger.debug("\(String(data: response.0, encoding: .utf8)!)")
+            let fetchedAgents:[Agent] = try JSONDecoder().decode([Agent].self, from: response.0)
+           
+            logger.info("\(fetchedAgents.count) fetched")
+            return fetchedAgents
+        } catch {
+            logger.error("\(String(describing: error))")
+            throw error
+        }
+    }
 }
