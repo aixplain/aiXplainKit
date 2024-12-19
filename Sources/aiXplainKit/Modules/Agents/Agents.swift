@@ -222,7 +222,12 @@ extension Agent {
     /// }
     /// ```
     public func run(query: String, content: [String: AgentInputable] = [:], sessionID: String? = nil, parameters: AgentRunParameters = .defaultParameters) async throws -> AgentOutput {
-        assert(content.count <= 3, "Only up to 3 content items are supported")
+        if content.count > 3{
+            throw AgentsError.invalidInput(error: "Only up to 3 content items are supported")
+        }
+        if query.isEmpty {
+            throw AgentsError.invalidInput(error: "Query cannot be empty")
+        }
         
         var modifiedQuery = query
         

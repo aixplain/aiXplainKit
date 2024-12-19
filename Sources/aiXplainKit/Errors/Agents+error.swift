@@ -40,6 +40,8 @@ enum AgentsError: Error, Equatable {
     
     /// An error occurred during input encoding.
     case inputEncodingError
+    
+    case invalidInput(error:String)
 
     var localizedDescription: String {
         switch self {
@@ -66,6 +68,8 @@ enum AgentsError: Error, Equatable {
             return "An unsupported value type was encountered during dictonary model input generation. Please ensure that all values in the dictonary are either URLs or strings."
         case .inputEncodingError:
             return "An error occurred during input encoding. Please ensure that all values in the dictonary are either URLs or strings."
+        case .invalidInput(error: let error):
+            return "Invalid input. \(error)"
         }
     }
 }

@@ -11,11 +11,11 @@ import XCTest
 
 final class PipelineFunctionalTests: XCTestCase {
 
-    let textToTextPipelineID: String = "66044a4d2d35979dedf6017f"
+    let textToTextPipelineID: String = "676416f4f84918acb4ab7001"
     let multipleTextToTextPipelineID: String = ""
     let imageToTextPipelineID: String = ""
     let audioToTextPipelienID: String = ""
-    let multipleInputPipelineID: String = "660550382d35979dedf60307"
+    let multipleInputPipelineID: String = "67641849485ec8ef69777288"
 
     var testRunningCosts: Float = 0
 
