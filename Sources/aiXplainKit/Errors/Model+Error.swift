@@ -56,6 +56,12 @@ enum ModelError: Error, Equatable {
     
     /// An error occurred during input encoding.
     case inputEncodingError
+    
+    case noResponse(endpoint: String)
+    
+    case missingModelUtilityID
+    
+    case modelUtilityCreationError(error: String)
 
     var localizedDescription: String {
         switch self {
@@ -82,6 +88,12 @@ enum ModelError: Error, Equatable {
             return "An unsupported value type was encountered during dictonary model input generation. Please ensure that all values in the dictonary are either URLs or strings."
         case .inputEncodingError:
             return "Encoding of the input failed."
+        case .noResponse(endpoint: let endpoint):
+            return "No response was received from the \(endpoint)."
+        case .missingModelUtilityID:
+            return "No model Uility ID was returned from the server."
+        case .modelUtilityCreationError(error: let error):
+            return "No model utility ID was returned from the server. \(error)"
         }
     }
 }
