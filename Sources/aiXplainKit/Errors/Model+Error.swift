@@ -62,6 +62,8 @@ enum ModelError: Error, Equatable {
     case missingModelUtilityID
     
     case modelUtilityCreationError(error: String)
+    
+    case failToCallModelExecuteFromUtility(error: String)
 
     var localizedDescription: String {
         switch self {
@@ -94,6 +96,8 @@ enum ModelError: Error, Equatable {
             return "No model Uility ID was returned from the server."
         case .modelUtilityCreationError(error: let error):
             return "No model utility ID was returned from the server. \(error)"
+        case .failToCallModelExecuteFromUtility(error: let error):
+            return "Fail to call model execute from utility: \(error)."
         }
     }
 }

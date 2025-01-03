@@ -8,11 +8,12 @@ public final class UtilityModel: Codable {
     public let name: String
     public var code: String //TODO: Should improve for either Swift Function or a better representation of Python Code.
     public var description: String
-    public var inputs: [UtilityModelInput]
+    public var inputs: [UtilityModelInputInformation]
     public var outputExamples: String
     public let supplier: Supplier?
     public let version: String?
     public let isSubscribed: Bool = false
+    private var modelInstance:Model?
     
     //TODO: Should create  function: Optional[Function] = None,
 //    public let cost: TODO: Should create cost
@@ -31,7 +32,7 @@ public final class UtilityModel: Codable {
     
 
     
-    init(id: String, name: String, code: String, description: String, inputs: [UtilityModelInput], outputExamples: String, supplier: Supplier? = nil, version: String? = nil) {
+    init(id: String, name: String, code: String, description: String, inputs: [UtilityModelInputInformation], outputExamples: String, supplier: Supplier? = nil, version: String? = nil) {
         self.id = id
         self.name = name
         self.code = code
@@ -48,7 +49,7 @@ public final class UtilityModel: Codable {
         id = try container.decode(String.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         description = try container.decode(String.self, forKey: .description)
-        inputs = try container.decode([UtilityModelInput].self, forKey: .inputs)
+        inputs = try container.decode([UtilityModelInputInformation].self, forKey: .inputs)
         code = try container.decode(String.self, forKey: .code)
         outputExamples = try container.decode(String.self, forKey: .outputExamples)
         supplier = try container.decodeIfPresent(Supplier.self, forKey: .supplier)
@@ -63,10 +64,43 @@ public final class UtilityModel: Codable {
         try container.encode(code, forKey: .code)
         try container.encode(outputExamples, forKey: .outputExamples)
     }
+    
+    
+    public convenience init(from model: Model){
+        var inputs:[UtilityModelInputInformation] = []
+        
+        model.parameters.forEach{ param in
+            inputs.append(UtilityModelInputInformation(name: param.name, description: "", type: UtilityModelInputType(rawValue: param.dataType) ?? .text))
+        }
+        
+        self.init(id: model.id, name: model.name, code: "unable to display", description: model.description, inputs: inputs, outputExamples: "")
+        
+        //TODO: Create task to load code from Model.Version.ID
+    }
+    
+}
 
-
+//MARK: Update & Delete
+extension UtilityModel{
     func update(){}//TODO: Complete
     
     func delete(){}//TODO: Delete
+}
+
+//MARK: Utility Model Execution
+extension UtilityModel{
+    public func run(_ modelInput: ModelInput, id: String = "model_process", parameters: ModelRunParameters = .defaultParameters) async throws -> ModelOutput {
+        if let model = modelInstance {
+            return try await model.run(modelInput, id:id, parameters: parameters)
+        }
+        do {
+            let model = try await ModelProvider().get(self.id)
+            self.modelInstance = model
+            return try await model.run(modelInput, id:id, parameters: parameters)
+        }catch {
+            throw ModelError.failToCallModelExecuteFromUtility(error: error.localizedDescription)
+        }
+    }
     
 }
+

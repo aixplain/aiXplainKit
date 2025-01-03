@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum ValidUtilityModelInputType:String,Codable{
+public enum UtilityModelInputType:String,Codable{
     case text
     case number
     case boolean
@@ -15,13 +15,13 @@ public enum ValidUtilityModelInputType:String,Codable{
 
 
 //TODO: Refactor
-public struct UtilityModelInput: Codable {
+public class UtilityModelInputInformation:Codable {
     public let name: String
     public let description: String
-    public var type: ValidUtilityModelInputType = .text
+    public var type: UtilityModelInputType = .text
     
     
-    public init(name: String, description: String, type: ValidUtilityModelInputType = .text) {
+    public init(name: String, description: String, type: UtilityModelInputType = .text) {
         self.name = name
         self.description = description
         self.type = type

@@ -9,7 +9,7 @@ import Foundation
 
 //TODO: Refactor and document
 extension ModelProvider {
-    public func createUtilityModel(name:String, code:String, inputs:[UtilityModelInput] = [], description:String, outputExample:String = "") async throws -> UtilityModel{
+    public func createUtilityModel(name:String, code:String, inputs:[UtilityModelInputInformation] = [], description:String, outputExample:String = "") async throws -> UtilityModel{
         
         
         let headers: [String: String] = try networking.buildHeader()

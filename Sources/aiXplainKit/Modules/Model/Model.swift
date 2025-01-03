@@ -45,22 +45,22 @@ do {
     // Handle errors
 }```
  */
-public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertible {
+public class Model: DecodableAsset, EncodableAsset, CustomStringConvertible {
 
     /// Unique identifier for the model.
     public var id: String
 
     /// Name of the model.
-    public let name: String
+    public var name: String
 
     /// Description of the model's functionality.
     public let modelDescription: String
 
     /// The entity that provides the model.
-    public let supplier: Supplier
+    public var supplier: Supplier
 
     /// Version of the model.
-    public let version: String
+    public var version: String
 
     /// Optional license information associated with the model.
     public let license: License?
@@ -80,9 +80,14 @@ public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertibl
     /// The organization or individual who developed the model.
     public let developedBy: String
 
-    private let logger: Logger
+    /// Parameters that can be passed to the model during execution
+    public let parameters: [ModelParameter]
 
-    public var description: String {
+    private let logger: Logger
+    
+    public var description: String = ""
+
+    public var debugDescription: String {
         var description = "Model:\n"
         description += "  ID: \(id)\n"
         description += "  Name: \(name)\n"
@@ -91,6 +96,19 @@ public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertibl
         description += "  Developed By: \(developedBy)\n"
         description += "  Version: \(version)\n"
         description += "  Pricing: \(pricing)\n"
+        if !parameters.isEmpty {
+            description += "  Parameters:\n"
+            for param in parameters {
+                description += "    - \(param.name) (\(param.dataType))\n"
+                description += "      Required: \(param.required)\n"
+                if !param.availableOptions.isEmpty {
+                    description += "      Options: \(param.availableOptions.joined(separator: ", "))\n"
+                }
+                if !param.defaultValues.isEmpty {
+                    description += "      Default Values: \(param.defaultValues)\n"
+                }
+            }
+        }
         return description
     }
 
@@ -99,17 +117,19 @@ public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertibl
     /// Creates a new `Model` instance from the provided decoder. Mainly used to decode JSON data.
     /// - Parameter decoder: The decoder to use for decoding the model.
     /// - Throws: `DecodingError` if there are any issues during decoding.
-    public init(from decoder: Decoder) throws {
+    required public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         id = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
         name = try container.decode(String.self, forKey: .name)
         modelDescription = try container.decodeIfPresent(String.self, forKey: .description) ?? "An ML Model"
+        description = modelDescription
         supplier = try container.decodeIfPresent(Supplier.self, forKey: .supplier) ?? Supplier(id: 0, name: "no", code: "")
         version = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .version).decodeIfPresent(String.self, forKey: .id) ?? "-"
         pricing = try container.decode(Pricing.self, forKey: .pricing)
         hostedBy = try container.decode(String.self, forKey: .hostedBy)
         developedBy = try container.decode(String.self, forKey: .developedBy)
+        parameters = (try? container.decodeIfPresent([ModelParameter].self, forKey: .params)) ?? []
         
         privacy = nil
         license = nil
@@ -134,6 +154,7 @@ public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertibl
         self.id = id
         self.name = name
         self.modelDescription = description
+        self.description = modelDescription
         self.supplier = supplier
         self.version = version
         self.license = license
@@ -141,6 +162,7 @@ public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertibl
         self.pricing = pricing
         self.hostedBy = hostedBy
         self.developedBy = developedBy
+        self.parameters = []
         self.logger = Logger(subsystem: "AiXplain", category: "Model(\(name)")
         self.networking = networking
     }
@@ -157,11 +179,12 @@ public final class Model: DecodableAsset, EncodableAsset, CustomStringConvertibl
         try container.encode(pricing, forKey: .pricing)
         try container.encode(hostedBy, forKey: .hostedBy)
         try container.encode(developedBy, forKey: .developedBy)
+        try container.encode(parameters, forKey: .params)
     }
 
     // Private enum for coding keys to improve readability and maintainability.
     private enum CodingKeys: String, CodingKey {
-        case id, name, description, supplier, version, license, privacy, pricing, hostedBy, developedBy
+        case id, name, description, supplier, version, license, privacy, pricing, hostedBy, developedBy, params
     }
 }
 
