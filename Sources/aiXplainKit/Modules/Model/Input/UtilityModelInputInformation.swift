@@ -7,6 +7,26 @@
 
 import Foundation
 
+public enum UtilityModelInput{
+    case text(name:String, description:String = "")
+    case number(name:String, description:String = "")
+    case boolean(name:String, description:String = "")
+    
+    
+    func encode() -> UtilityModelInputInformation{
+        switch self {
+        case .text(name: let name, description: let description):
+            return UtilityModelInputInformation(name: name, description: description, type: .text)
+        case .number(name: let name, description: let description):
+            return UtilityModelInputInformation(name: String(name), description: description, type: .number)
+        case .boolean(name: let name, description: let description):
+            return UtilityModelInputInformation(name: String(name), description: description, type: .boolean)
+        }
+
+    }
+}
+
+
 public enum UtilityModelInputType:String,Codable{
     case text
     case number

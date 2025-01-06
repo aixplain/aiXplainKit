@@ -32,6 +32,17 @@ public final class UtilityModel: Codable {
     
 
     
+    init(id: String, name: String, code: String, description: String, inputs: [UtilityModelInput], outputExamples: String, supplier: Supplier? = nil, version: String? = nil) {
+        self.id = id
+        self.name = name
+        self.code = code
+        self.description = description
+        self.inputs = inputs.map{$0.encode()}
+        self.outputExamples = outputExamples
+        self.supplier = supplier
+        self.version = version
+    }
+    
     init(id: String, name: String, code: String, description: String, inputs: [UtilityModelInputInformation], outputExamples: String, supplier: Supplier? = nil, version: String? = nil) {
         self.id = id
         self.name = name
