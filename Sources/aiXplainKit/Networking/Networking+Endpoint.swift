@@ -74,6 +74,9 @@ extension Networking {
             case .paginateModels:
                 return "/sdk/models/paginate"
             case .agents(agentIdentifier: let agentIdentifier):
+                if agentIdentifier.isEmpty {
+                    return "/sdk/agents"
+                }
                 return "/sdk/agents/\(agentIdentifier)"
             case .paginateAgents:
                 return "/sdk/agents"

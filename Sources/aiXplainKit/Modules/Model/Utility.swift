@@ -6,7 +6,7 @@ import OSLog
 public final class UtilityModel: Codable {
     public var id: String
     public let name: String
-    public var code: String //TODO: Should improve for either Swift Function or a better representation of Python Code.
+    public var code: String
     public var description: String
     public var inputs: [UtilityModelInputInformation]
     public var outputExamples: String
@@ -84,18 +84,96 @@ public final class UtilityModel: Codable {
             inputs.append(UtilityModelInputInformation(name: param.name, description: "", type: UtilityModelInputType(rawValue: param.dataType) ?? .text))
         }
         
-        self.init(id: model.id, name: model.name, code: "unable to display", description: model.description, inputs: inputs, outputExamples: "")
+        self.init(id: model.id, name: model.name, code: "", description: model.description, inputs: inputs, outputExamples: "")
         
         //TODO: Create task to load code from Model.Version.ID
+    }
+    
+    
+    
+    func updateCode() async throws{
+        if let model = modelInstance{
+            //TODO: Try to load code from url in model.version, add code to self.code
+        }
     }
     
 }
 
 //MARK: Update & Delete
 extension UtilityModel{
-    func update(){}//TODO: Complete
     
-    func delete(){}//TODO: Delete
+    //TODO: Document
+    //return new id
+    @discardableResult
+    public func update(networking: Networking? = nil) async throws -> String{
+        let networking = networking ?? Networking()
+        try await updateCode()
+        let headers = try networking.buildHeader()
+        
+        guard let url = APIKeyManager.shared.BACKEND_URL else {
+            throw ModelError.missingBackendURL
+        }
+
+        let endpoint = Networking.Endpoint.utilities.path
+        guard let url = URL(string: url.absoluteString + endpoint + "/" + self.id) else {
+            throw ModelError.invalidURL(url: url.absoluteString)
+        }
+        
+        let payload = try JSONEncoder().encode(self)
+
+        let response = try await networking.put(url: url, body: payload, headers: headers)
+
+        if let httpUrlResponse = response.1 as? HTTPURLResponse,
+           !(200...299).contains(httpUrlResponse.statusCode) {
+            throw NetworkingError.invalidStatusCode(statusCode: httpUrlResponse.statusCode)
+        }
+
+        struct IDResponse: Codable {
+            let id: String
+        }
+        
+        do {
+            let decodedResponse = try JSONDecoder().decode(IDResponse.self, from: response.0)
+            self.id = decodedResponse.id
+            return id
+        } catch {
+            throw ModelError.unableToUpdateModelUtility(error: error.localizedDescription)
+        }
+    }
+    
+    public func delete(networking: Networking? = nil) async throws{
+        let networking = networking ?? Networking()
+        let headers = try networking.buildHeader()
+        
+        guard let url = APIKeyManager.shared.BACKEND_URL else {
+            throw ModelError.missingBackendURL
+        }
+
+        let endpoint = Networking.Endpoint.utilities.path
+        guard let url = URL(string: url.absoluteString + endpoint + "/" + self.id) else {
+            throw ModelError.invalidURL(url: url.absoluteString)
+        }
+        
+
+        let response = try await networking.delete(url: url, headers: headers)
+
+        if let httpUrlResponse = response.1 as? HTTPURLResponse,
+           !(200...299).contains(httpUrlResponse.statusCode) {
+            throw NetworkingError.invalidStatusCode(statusCode: httpUrlResponse.statusCode)
+        }
+        
+        struct IDResponse: Codable {
+            let id: String
+        }
+
+        do {
+            let decodedResponse = try JSONDecoder().decode(IDResponse.self, from: response.0)
+            self.id = decodedResponse.id
+
+        } catch {
+            throw ModelError.unableToUpdateModelUtility(error: error.localizedDescription)
+        }
+    }
 }
 
 //MARK: Utility Model Execution

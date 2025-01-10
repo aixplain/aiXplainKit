@@ -82,6 +82,8 @@ public class Model: DecodableAsset, EncodableAsset, CustomStringConvertible {
 
     /// Parameters that can be passed to the model during execution
     public let parameters: [ModelParameter]
+    
+    public let function:Function?
 
     private let logger: Logger
     
@@ -131,6 +133,8 @@ public class Model: DecodableAsset, EncodableAsset, CustomStringConvertible {
         developedBy = try container.decode(String.self, forKey: .developedBy)
         parameters = (try? container.decodeIfPresent([ModelParameter].self, forKey: .params)) ?? []
         
+        function = try? container.decodeIfPresent(Function.self, forKey: .function)
+        
         privacy = nil
         license = nil
         logger = Logger(subsystem: "AiXplain", category: "Model(\(name)")
@@ -165,6 +169,7 @@ public class Model: DecodableAsset, EncodableAsset, CustomStringConvertible {
         self.parameters = []
         self.logger = Logger(subsystem: "AiXplain", category: "Model(\(name)")
         self.networking = networking
+        self.function = nil
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -180,11 +185,12 @@ public class Model: DecodableAsset, EncodableAsset, CustomStringConvertible {
         try container.encode(hostedBy, forKey: .hostedBy)
         try container.encode(developedBy, forKey: .developedBy)
         try container.encode(parameters, forKey: .params)
+        try container.encode(function, forKey: .function)
     }
 
     // Private enum for coding keys to improve readability and maintainability.
     private enum CodingKeys: String, CodingKey {
-        case id, name, description, supplier, version, license, privacy, pricing, hostedBy, developedBy, params
+        case id, name, description, supplier, version, license, privacy, pricing, hostedBy, developedBy, params, function
     }
 }
 
