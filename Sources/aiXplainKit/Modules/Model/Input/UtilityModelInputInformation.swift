@@ -14,7 +14,8 @@ public enum UtilityModelInput {
     /// A numeric input with a name and optional description 
     case number(name: String, description: String = "")
     /// A boolean input with a name and optional description
-    case boolean(name: String, description: String = "")
+//    case boolean(name: String, description: String = "")
+    //TODO: Implenent audio, video, image, label, number
     
     /// Converts the UtilityModelInput into a UtilityModelInputInformation object
     /// - Returns: A UtilityModelInputInformation object containing the input's details
@@ -24,8 +25,6 @@ public enum UtilityModelInput {
             return UtilityModelInputInformation(name: name, description: description, type: .text)
         case .number(name: let name, description: let description):
             return UtilityModelInputInformation(name: String(name), description: description, type: .number)
-        case .boolean(name: let name, description: let description):
-            return UtilityModelInputInformation(name: String(name), description: description, type: .boolean)
         }
     }
 }

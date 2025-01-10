@@ -16,7 +16,7 @@ public protocol AgentUsableTool {
 /// Represents a specialized software or resource designed to assist AI agents in executing specific tasks or functions based on user commands.
 public struct Tool: Codable, AgentUsableTool {
     /// Unique identifier for the tool
-    var id: String
+    public var id: String
     
     /// The type of tool (model or pipeline)
     var type: ToolType = .model

@@ -140,7 +140,9 @@ extension UtilityModel{
     @discardableResult
     public func update(networking: Networking? = nil) async throws -> String{
         let networking = networking ?? Networking()
-        try await updateCode()
+        if code.isEmpty{
+            try await self.updateCode()
+        }
         let headers = try networking.buildHeader()
         
         guard let url = APIKeyManager.shared.BACKEND_URL else {
@@ -168,6 +170,7 @@ extension UtilityModel{
         do {
             let decodedResponse = try JSONDecoder().decode(IDResponse.self, from: response.0)
             self.id = decodedResponse.id
+            self.modelInstance = try await ModelProvider().get(self.id)
             return id
         } catch {
             throw ModelError.unableToUpdateModelUtility(error: error.localizedDescription)

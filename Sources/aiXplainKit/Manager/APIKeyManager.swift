@@ -60,11 +60,10 @@ public final class APIKeyManager {
     public static var shared = APIKeyManager()
 
     /// The base URL for the backend API.
-    public var BACKEND_URL: URL? = URL(string: "https://platform-api.aixplain.com")
+    public var BACKEND_URL: URL?
 
-    /// The URL for the models run API endpoint.
-    public var MODELS_RUN_URL: URL? = URL(string: "https://models.aixplain.com/api/v1/execute/")
-    
+    /// The URL for the models run API endpoint. 
+    public var MODELS_RUN_URL: URL?
 
     public var TEAM_API_KEY: String?
     public var AIXPLAIN_API_KEY: String?
@@ -79,9 +78,24 @@ public final class APIKeyManager {
         loadAPIKeysFromProcessInfo()
     }
 
-    /// Fetches API keys from ProcessInfo and populates the relevant properties.
+    /// Fetches API keys and URLs from ProcessInfo and populates the relevant properties.
     private func loadAPIKeysFromProcessInfo() {
+        // Load URLs from environment, falling back to defaults if not found
+        if let backendURLString = ProcessInfo.processInfo.environment["BACKEND_URL"],
+           let url = URL(string: backendURLString) {
+            self.BACKEND_URL = url
+        } else {
+            self.BACKEND_URL = URL(string: "https://platform-api.aixplain.com")
+        }
 
+        if let modelsURLString = ProcessInfo.processInfo.environment["MODELS_RUN_URL"],
+           let url = URL(string: modelsURLString) {
+            self.MODELS_RUN_URL = url
+        } else {
+            self.MODELS_RUN_URL = URL(string: "https://models.aixplain.com/api/v1/execute/")
+        }
+
+        // Load API keys
         self.TEAM_API_KEY = ProcessInfo.processInfo.environment["TEAM_API_KEY"]
         self.AIXPLAIN_API_KEY = ProcessInfo.processInfo.environment["AIXPLAIN_API_KEY"]
         self.PIPELINE_API_KEY = ProcessInfo.processInfo.environment["PIPELINE_API_KEY"]
