@@ -42,6 +42,10 @@ enum AgentsError: Error, Equatable {
     case inputEncodingError
     
     case invalidInput(error:String)
+    
+    case errorOnDelete(error:String)
+    
+    case errorOnUpdate(error:String)
 
     var localizedDescription: String {
         switch self {
@@ -70,6 +74,10 @@ enum AgentsError: Error, Equatable {
             return "An error occurred during input encoding. Please ensure that all values in the dictonary are either URLs or strings."
         case .invalidInput(error: let error):
             return "Invalid input. \(error)"
+        case .errorOnDelete(error: let error):
+            return "Agent couldn't be deleted. Check if you own the Agent and try again. Error: \(error)"
+        case .errorOnUpdate(error: let error):
+            return "Agent couldn't be updated. Check if you own the Agent and try again. Error: \(error)"
         }
     }
 }

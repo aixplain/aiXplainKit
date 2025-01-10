@@ -2,7 +2,7 @@ import Foundation
 import OSLog
 
 
-//TODO: Reafactor, inheritance from model??? 
+
 public final class UtilityModel: Codable {
     public var id: String
     public let name: String
@@ -15,8 +15,6 @@ public final class UtilityModel: Codable {
     public let isSubscribed: Bool = false
     private var modelInstance:Model?
     
-    //TODO: Should create  function: Optional[Function] = None,
-//    public let cost: TODO: Should create cost
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -86,14 +84,26 @@ public final class UtilityModel: Codable {
         
         self.init(id: model.id, name: model.name, code: "", description: model.description, inputs: inputs, outputExamples: "")
         
-        //TODO: Create task to load code from Model.Version.ID
+        Task{
+            try await updateCode()
+        }
     }
     
     
     
-    func updateCode() async throws{
-        if let model = modelInstance{
-            //TODO: Try to load code from url in model.version, add code to self.code
+    func updateCode() async throws {
+        if let model = modelInstance,
+           let versionUrl = URL(string: model.version) {
+            let (data, response) = try await URLSession.shared.data(from: versionUrl)
+            
+            if let httpResponse = response as? HTTPURLResponse,
+               !(200...299).contains(httpResponse.statusCode) {
+                throw NetworkingError.invalidStatusCode(statusCode: httpResponse.statusCode)
+            }
+            
+            if let codeString = String(data: data, encoding: .utf8) {
+                self.code = codeString
+            }
         }
     }
     
@@ -102,8 +112,31 @@ public final class UtilityModel: Codable {
 //MARK: Update & Delete
 extension UtilityModel{
     
-    //TODO: Document
-    //return new id
+    /// Updates the utility model on the server with its current state.
+    ///
+    /// This method synchronizes the current state of the utility model with the server by:
+    /// 1. Updating the code from the model version URL
+    /// 2. Encoding the model into JSON
+    /// 3. Sending a PUT request to update the server
+    /// 4. Updating the local ID with the response
+    ///
+    /// - Parameter networking: Optional networking instance to use. If nil, creates a new one.
+    /// - Returns: The ID of the updated utility model
+    /// - Throws: 
+    ///   - `ModelError.missingBackendURL` if the backend URL is not configured
+    ///   - `ModelError.invalidURL` if the constructed URL is invalid
+    ///   - `NetworkingError.invalidStatusCode` if response status code is not 2xx
+    ///   - `ModelError.unableToUpdateModelUtility` if response decoding fails
+    ///
+    /// # Example
+    /// ```swift
+    /// do {
+    ///     let newId = try await utilityModel.update()
+    ///     print("Model updated with ID: \(newId)")
+    /// } catch {
+    ///     print("Failed to update model: \(error)")
+    /// }
+    /// ```
     @discardableResult
     public func update(networking: Networking? = nil) async throws -> String{
         let networking = networking ?? Networking()
@@ -141,6 +174,28 @@ extension UtilityModel{
         }
     }
     
+    /// Deletes the utility model from the server.
+    ///
+    /// This method sends a DELETE request to remove the utility model from the aiXplain platform.
+    /// Once deleted, the model cannot be recovered.
+    ///
+    /// - Parameter networking: Optional networking instance for making the request. If nil, creates a new instance.
+    ///
+    /// - Throws:
+    ///   - `ModelError.missingBackendURL` if the backend URL is not configured
+    ///   - `ModelError.invalidURL` if the constructed URL is invalid
+    ///   - `NetworkingError.invalidStatusCode` if response status code is not 2xx
+    ///   - `ModelError.unableToUpdateModelUtility` if response decoding fails
+    ///
+    /// # Example
+    /// ```swift
+    /// do {
+    ///     try await utilityModel.delete()
+    ///     print("Model successfully deleted")
+    /// } catch {
+    ///     print("Failed to delete model: \(error)")
+    /// }
+    /// ```
     public func delete(networking: Networking? = nil) async throws{
         let networking = networking ?? Networking()
         let headers = try networking.buildHeader()
@@ -178,6 +233,30 @@ extension UtilityModel{
 
 //MARK: Utility Model Execution
 extension UtilityModel{
+    /// Executes the utility model with the given input and parameters.
+    ///
+    /// This method runs the model either using a cached instance or by fetching a new instance from the server.
+    ///
+    /// - Parameters:
+    ///   - modelInput: The input data to process
+    ///   - id: Optional identifier for the model process (defaults to "model_process")
+    ///   - parameters: Optional run parameters (defaults to .defaultParameters)
+    ///
+    /// - Returns: A ModelOutput containing the results of the model execution
+    ///
+    /// - Throws:
+    ///   - `ModelError.failToCallModelExecuteFromUtility` if the model execution fails
+    ///
+    /// # Example
+    /// ```swift
+    /// do {
+    ///     let input = ModelInput(/* input parameters */)
+    ///     let output = try await utilityModel.run(input)
+    ///     print("Model execution successful")
+    /// } catch {
+    ///     print("Model execution failed: \(error)")
+    /// }
+    /// ```
     public func run(_ modelInput: ModelInput, id: String = "model_process", parameters: ModelRunParameters = .defaultParameters) async throws -> ModelOutput {
         if let model = modelInstance {
             return try await model.run(modelInput, id:id, parameters: parameters)
