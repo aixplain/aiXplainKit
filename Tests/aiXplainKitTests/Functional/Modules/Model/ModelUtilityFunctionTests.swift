@@ -23,8 +23,8 @@ final class ModelUtilityFunctionTests: XCTestCase {
             name: "Functional test",
             code: code, 
             inputs: [
-                .number(name: "number", description: "number to be used"),
-                .text(name: "text", description: "text to be used")
+                .number(name: "number", description: "number to be used in the test"),
+                .text(name: "text", description: "text to be used in the test")
             ],
             description: "Test Utility"
         )

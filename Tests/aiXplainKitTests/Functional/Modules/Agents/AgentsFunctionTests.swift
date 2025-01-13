@@ -19,7 +19,7 @@ final class AgentFunctionalTests: XCTestCase {
     override func setUp() async throws {
         try await super.setUp()
         // Use a shared agent instance for most tests
-        agent = try await AgentProvider().get("6734ea202a37811479ff2513")
+        agent = try await AgentProvider().get("67851fd27fbcb5fa9a62b53f")
     }
     
     func testAgentRun() async throws {

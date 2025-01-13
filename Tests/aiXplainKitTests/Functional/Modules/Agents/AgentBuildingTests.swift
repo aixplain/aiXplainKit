@@ -101,7 +101,7 @@ final class AgentBuildingTests: XCTestCase {
         [
             .asset(id: "65c51c556eb563350f6e1bb1", description: "Allows the agent to perform web searches to find up-to-date information on any topic. Use this tool to access the most recent and relevant online content."),
             .asset(id: "6633fd59821ee31dd914e232", description: "Allows the agent to perform web searches to find up-to-date information on any topic. Use this tool to access the most recent and relevant online content."),
-            .asset(id: "676597b86eb56325c86cf271", description: "Generates high-quality images from detailed text prompts. Use this tool to create visual representations or artistic renderings based on user input."),
+            .asset(id: "64aee5824d34b1221e70ac07", description: "Generates high-quality images from detailed text prompts. Use this tool to create visual representations or artistic renderings based on user input."),
             .asset(id: "6171efa5159531495cadefbc", description: "Converts text to spoken audio in natural-sounding voices. Useful for generating audible output or creating voice responses for interactive applications")
         ]
     }
@@ -116,7 +116,7 @@ final class AgentBuildingTests: XCTestCase {
         return try await ModelProvider().createUtilityModel(
             name: "Random Number Generator",
             code: code,
-            inputs: [.number(name: "number", description: "max random integer")],
+            inputs: [.number(name: "number", description: "max random integer to be used")],
             description: "generate random numbers"
         )
     }
