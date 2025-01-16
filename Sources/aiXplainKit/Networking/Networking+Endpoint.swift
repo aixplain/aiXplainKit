@@ -53,6 +53,8 @@ extension Networking {
         case paginateAgents
         
         case utilities
+        
+        case functions
 
         /// The path for the endpoint
         var path: String {
@@ -82,6 +84,8 @@ extension Networking {
                 return "/sdk/agents"
             case .utilities:
                 return "/sdk/utilities"
+            case .functions:
+                return "/sdk/functions"
             }
         }
     }
