@@ -51,6 +51,8 @@ extension Networking {
         case agents(agentIdentifier: String)
         
         case paginateAgents
+        
+        case utilities
 
         /// The path for the endpoint
         var path: String {
@@ -72,9 +74,14 @@ extension Networking {
             case .paginateModels:
                 return "/sdk/models/paginate"
             case .agents(agentIdentifier: let agentIdentifier):
+                if agentIdentifier.isEmpty {
+                    return "/sdk/agents"
+                }
                 return "/sdk/agents/\(agentIdentifier)"
             case .paginateAgents:
                 return "/sdk/agents"
+            case .utilities:
+                return "/sdk/utilities"
             }
         }
     }

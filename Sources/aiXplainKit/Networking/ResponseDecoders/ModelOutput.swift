@@ -36,6 +36,12 @@ public struct ModelOutput: Codable {
 
    /// The main output string returned by the model.
    public let output: String
+   
+   /// The standard output from the model execution, if any
+   public let stdout: String?
+   
+   /// The standard error from the model execution, if any 
+   public let stderr: String?
 
    /// The number of credits used for running the model.
    public let usedCredits: Float
@@ -45,6 +51,8 @@ public struct ModelOutput: Codable {
 
    private enum CodingKeys: String, CodingKey {
        case output = "data"
+       case stdout
+       case stderr
        case usedCredits
        case runtime = "runTime"
    }
@@ -58,6 +66,8 @@ public struct ModelOutput: Codable {
    public init(from decoder: Decoder) throws {
        let container = try decoder.container(keyedBy: CodingKeys.self)
        output = try container.decode(String.self, forKey: .output)
+       stdout = try container.decodeIfPresent(String.self, forKey: .stdout)
+       stderr = try container.decodeIfPresent(String.self, forKey: .stderr)
        usedCredits = try container.decode(Float.self, forKey: .usedCredits)
        runtime = try container.decode(Double.self, forKey: .runtime)
    }

@@ -34,7 +34,7 @@ public final class Agent: Codable {
     public let name: String
     
     /// The current status of the agent.
-    public let status: String
+    public var status: String
     
     /// The identifier of the team associated with the agent.
     public let teamId: Int
@@ -54,8 +54,12 @@ public final class Agent: Codable {
     /// A logger instance for recording events and debugging information.
     private let logger: Logger
     
+    /// The assets associated with the agent.
+    public var assets: [Tool]
+    
     /// The networking service responsible for making API calls and handling URL sessions.
     var networking: Networking
+    
     
     // MARK: - Initializers
     
@@ -72,6 +76,7 @@ public final class Agent: Codable {
         teamId = try container.decode(Int.self, forKey: .teamId)
         description = try container.decodeIfPresent(String.self, forKey: .description) ?? "No description"
         llmId = try container.decode(String.self, forKey: .llmId)
+        assets = try container.decodeIfPresent([Tool].self, forKey: .assets) ?? []
         
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -97,13 +102,15 @@ public final class Agent: Codable {
     ///   - llmId: The identifier of the associated large language model.
     ///   - createdAt: The creation timestamp of the agent.
     ///   - updatedAt: The last update timestamp of the agent.
-    public init(id: String, name: String, status: String, teamId: Int, description: String, llmId: String, createdAt: Date, updatedAt: Date) {
+    ///   - assets: The assets associated with the agent.
+    public init(id: String, name: String, status: String, teamId: Int, description: String, llmId: String, createdAt: Date, updatedAt: Date, assets: [Tool] = []) {
         self.id = id
         self.name = name
         self.status = status
         self.teamId = teamId
         self.description = description
         self.llmId = llmId
+        self.assets = assets
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.logger = Logger(subsystem: "AiXplain", category: "Agent(\(name))")
@@ -123,13 +130,14 @@ public final class Agent: Codable {
         try container.encode(teamId, forKey: .teamId)
         try container.encode(description, forKey: .description)
         try container.encode(llmId, forKey: .llmId)
+        try container.encode(assets, forKey: .assets)
         try container.encode(createdAt, forKey: .createdAt)
         try container.encode(updatedAt, forKey: .updatedAt)
     }
     
     /// Private keys for encoding and decoding the `Agent` properties.
     private enum CodingKeys: String, CodingKey {
-        case id, name, status, teamId, description, llmId, createdAt, updatedAt
+        case id, name, status, teamId, description, llmId, createdAt, updatedAt, assets
     }
 }
 
