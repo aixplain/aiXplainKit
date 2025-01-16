@@ -5,6 +5,6 @@ public struct FunctionListResponse: Codable {
 }
 
 public struct FunctionResponse: Codable {
-    let id: String
-    let name: String
+    public let id: String
+    public let name: String
 }
