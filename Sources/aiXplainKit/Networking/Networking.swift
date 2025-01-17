@@ -74,15 +74,15 @@ public class Networking {
         request.httpMethod = "POST"
         request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
         request.timeoutInterval = parameters.networkTimeoutInSecondsInterval
-
+        
         for (header, value) in headers {
             request.setValue(value, forHTTPHeaderField: header)
         }
-
+        
         if let body = body {
             request.httpBody = body
         }
-
+        
         var retryCount: Int = 0
         repeat {
             do {
@@ -93,8 +93,9 @@ public class Networking {
             }
             retryCount += 1
         } while retryCount <= parameters.maxNetworkCallRetries
-
-        throw NetworkingError.maxRetryReached    }
+        
+        throw NetworkingError.maxRetryReached
+    }
 
     /// Sends data to the specified URL using the PUT method.
     ///
@@ -121,6 +122,38 @@ public class Networking {
             do {
                 logger.debug("PUT request to \(url)")
                 return try await URLSession.shared.upload(for: request, from: body)
+            } catch {
+                try? await Task.sleep(nanoseconds: UInt64(parameters.networkTimeoutInSecondsInterval * 1_000_000_000))
+            }
+            retryCount += 1
+        } while retryCount <= parameters.maxNetworkCallRetries
+
+        throw NetworkingError.maxRetryReached
+    }
+
+    /// Deletes a resource at the specified URL using the DELETE method.
+    ///
+    /// - Parameters:
+    ///   - url: The URL of the resource to delete.
+    ///   - headers: Optional dictionary of headers to include in the request (default: empty).
+    ///
+    /// - Throws: Any error that may occur during the network request.
+    /// - Returns: A tuple containing the retrieved data and the URL response.
+    public func delete(url: URL, headers: [String: String] = [:]) async throws -> (Data, URLResponse) {
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+        request.timeoutInterval = parameters.networkTimeoutInSecondsInterval
+
+        for (header, value) in headers {
+            request.setValue(value, forHTTPHeaderField: header)
+        }
+
+        var retryCount: Int = 0
+        repeat {
+            do {
+                logger.debug("DELETE request to \(url)")
+                return try await URLSession.shared.data(for: request)
             } catch {
                 try? await Task.sleep(nanoseconds: UInt64(parameters.networkTimeoutInSecondsInterval * 1_000_000_000))
             }

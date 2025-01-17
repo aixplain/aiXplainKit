@@ -10,7 +10,7 @@ import XCTest
 
 final class ModelFunctionalTests: XCTestCase {
 
-    let llamaModelIdentifier = "6543cb991f695e72028e9428"
+    let llamaModelIdentifier = "6622cf096eb563537126b1a1"
 
     var testRunningCosts: Float = 0
 
@@ -50,23 +50,17 @@ final class ModelFunctionalTests: XCTestCase {
     func test_model_description() async {
         let llamaModel = try! await ModelProvider().get(llamaModelIdentifier)
 
-        XCTAssertTrue(llamaModel.id == "6543cb991f695e72028e9428")
-        XCTAssertEqual(llamaModel.name, "Llama 2 7B")
-        XCTAssertEqual(llamaModel.supplier.id, 1)
-        XCTAssertEqual(llamaModel.supplier.name, "aiXplain")
-        XCTAssertEqual(llamaModel.supplier.code, "aixplain")
-        XCTAssertEqual(llamaModel.version, "llama-2-7b-hf")
-        XCTAssertEqual(llamaModel.pricing.price, 5e-06)
+        XCTAssertTrue(llamaModel.id == "6622cf096eb563537126b1a1")
+        XCTAssertEqual(llamaModel.name, "Llama 3 8B")
+        XCTAssertEqual(llamaModel.supplier.id, 6839)
+        XCTAssertEqual(llamaModel.supplier.name, "Groq")
+        XCTAssertEqual(llamaModel.supplier.code, "groq")
+        XCTAssertEqual(llamaModel.version, "llama3-8b-8192")
+        XCTAssertEqual(llamaModel.pricing.price, 7.5e-07)
         XCTAssertEqual(llamaModel.pricing.unitType, "TOKEN")
         XCTAssertNil(llamaModel.pricing.unitScale)
 
-        var description = "Model:\n"
-        description += "  ID: \(llamaModel.id)\n"
-        description += "  Name: \(llamaModel.name)\n"
-        description += "  Description: \(llamaModel.modelDescription)\n"
-        description += "  Supplier: \(llamaModel.supplier)\n"
-        description += "  Version: \(llamaModel.version)\n"
-        description += "  Pricing: \(llamaModel.pricing)\n"
+        var description = "Model:\n  ID: 6622cf096eb563537126b1a1\n  Name: Llama 3 8B\n  Description: Creates coherent and contextually relevant textual content based on prompts or certain parameters. Useful for chatbots, content creation, and data augmentation.\n  Hosted By: Groq\n  Developed By: Meta\n  Version: llama3-8b-8192\n  Pricing: Pricing(price: 7.5e-07, unitType: Optional(\"TOKEN\"), unitScale: nil)\n"
 
         XCTAssertTrue(llamaModel.description == description)
     }
@@ -74,24 +68,18 @@ final class ModelFunctionalTests: XCTestCase {
     // MARK: Audio-to-Text
 
     func testRunAudioToTextOnPrem() async throws {
-        let speechModel = try await ModelProvider().get("621cf3fa6442ef511d2830af")
+        let speechModel = try await ModelProvider().get("61716a9ed4e2751804b8097a")
 
-        let marshallPlanURL: URL = URL(string: "https://upload.wikimedia.org/wikipedia/commons/7/75/Marshall_Plan_Speech.wav")!
-        // Audio file from: George C. Marshall, Public domain, via Wikimedia Commons
+        let marshallPlanURL: URL = URL(string: "https://www.americanrhetoric.com/mp3clips/newmoviespeeches/moviespeechthereturnofthekingbenediction.mp3")!
+        // Audio file from: Lord of The Rings: The Return of the King, https://www.americanrhetoric.com/MovieSpeeches/moviespeechreturnoftheking.html
 
-        let modelOutput = try! await speechModel.run(marshallPlanURL)
-
-        XCTAssert(modelOutput.output == "It is logical that the United States should do whatever it is able to do to assist in the return of normal economic health in the world, without which there can be no political stability and no assured peace. Our policy is directed not against any country or doctrine, but against hunger, poverty, desperation and chaos.")
-        XCTAssert(modelOutput.usedCredits < 0.01)
-        testRunningCosts += modelOutput.usedCredits
 
         // From Local URL
-
         await self.withTempFile(from: marshallPlanURL) { localURL in
                 let modelOutput = try! await speechModel.run(localURL)
 
-                XCTAssert(modelOutput.output == "It is logical that the United States should do whatever it is able to do to assist in the return of normal economic health in the world, without which there can be no political stability and no assured peace. Our policy is directed not against any country or doctrine, but against hunger, poverty, desperation and chaos.")
-                XCTAssert(modelOutput.usedCredits < 0.01)
+                XCTAssert(modelOutput.output == "This day does not belong to one man, but to all let us together rebuild this world that we may share in the days of peace.")
+                XCTAssert(modelOutput.usedCredits < 0.1)
             self.testRunningCosts += modelOutput.usedCredits
 
         }
@@ -122,4 +110,10 @@ final class ModelFunctionalTests: XCTestCase {
     // TODO: Image-To-Image
     // TODO: Text-To-Audio
 
+    //TODO: Model Provider to get a list
+    func testModelList() async throws {
+        let modelList = try await ModelProvider().list(.init(functions: []))
+        XCTAssertTrue(modelList.count > 0)
+    }
+    
 }

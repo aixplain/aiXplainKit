@@ -17,6 +17,7 @@ final class ModelProviderTests: XCTestCase {
         AiXplainKit.shared.keyManager.clear()
     }
 
+    //TODO: Fix error
     func test_get_fetchesAndDecodesModel_whenSuccessfulResponse() async throws {
         AiXplainKit.shared.keyManager.TEAM_API_KEY = "-"
 
