@@ -160,6 +160,31 @@ public final class ModelProvider {
         }
         return []
     }
+    
+    
+    public func listFunctions() async throws -> FunctionListResponse {
+        let headers: [String: String] = try networking.buildHeader()
+
+        guard let url = APIKeyManager.shared.BACKEND_URL else {
+            throw ModelError.missingBackendURL
+        }
+
+        let endpoint = Networking.Endpoint.functions
+        guard let url = URL(string: url.absoluteString + endpoint.path) else {
+            throw ModelError.invalidURL(url: url.absoluteString + endpoint.path)
+        }
+
+        let response = try await networking.get(url: url,headers: headers)
+
+        if let httpUrlResponse = response.1 as? HTTPURLResponse,
+           httpUrlResponse.statusCode != 200 {
+            throw NetworkingError.invalidStatusCode(statusCode: httpUrlResponse.statusCode)
+        }
+        
+        let functionListResponse = try! JSONDecoder().decode(FunctionListResponse.self, from: response.0)
+        
+        return functionListResponse
+    }
 
     /// Parses a JSON string response into an array of `Model` objects.
     ///
