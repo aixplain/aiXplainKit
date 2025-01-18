@@ -84,6 +84,8 @@ public final class UtilityModel: Codable {
         
         self.init(id: model.id, name: model.name, code: "", description: model.description, inputs: inputs, outputExamples: "")
         
+        self.modelInstance = model
+        
         Task{
             try await updateCode()
         }
@@ -91,7 +93,7 @@ public final class UtilityModel: Codable {
     
     
     
-    func updateCode() async throws {
+    public func updateCode() async throws -> String?{
         if let model = modelInstance,
            let versionUrl = URL(string: model.version) {
             let (data, response) = try await URLSession.shared.data(from: versionUrl)
@@ -103,8 +105,16 @@ public final class UtilityModel: Codable {
             
             if let codeString = String(data: data, encoding: .utf8) {
                 self.code = codeString
+                return codeString
             }
+            
+            return nil
         }
+        return nil
+    }
+    
+    public func updateModelInstance() async throws{
+        self.modelInstance = try await ModelProvider().get(self.id)
     }
     
 }
