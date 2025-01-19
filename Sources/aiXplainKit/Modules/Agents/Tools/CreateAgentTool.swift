@@ -13,6 +13,19 @@ public enum CreateAgentTool:AgentUsableTool{
     case asset(id:String, description:String)
     case utility(_ model:UtilityModel, description:String)
     case tool(_ tool:AgentUsableTool, description:String)
+
+    public var description: String{
+        switch self {
+        case .model(let model, let description):
+            return description
+        case .pipeline(let pipeline, let description):
+            return description
+        case .asset(let id, let description):
+            return description
+        case .tool(let tool, let description):
+            return description
+        }
+    }
     
     
     public func convertToTool() -> Tool {
@@ -37,5 +50,6 @@ public enum CreateAgentTool:AgentUsableTool{
             return tool
         }
     }
+    
     
 }
