@@ -16,13 +16,15 @@ public enum CreateAgentTool:AgentUsableTool{
 
     public var description: String{
         switch self {
-        case .model(let model, let description):
+        case .model(_, let description):
             return description
-        case .pipeline(let pipeline, let description):
+        case .pipeline(_, let description):
             return description
-        case .asset(let id, let description):
+        case .asset(_, let description):
             return description
-        case .tool(let tool, let description):
+        case .utility(_, let description):
+            return description
+        case .tool(_, let description):
             return description
         }
     }
