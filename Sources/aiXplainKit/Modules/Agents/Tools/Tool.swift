@@ -22,16 +22,16 @@ public struct Tool: Codable, AgentUsableTool {
     var type: ToolType = .model
     
     /// Optional identifier for the function this tool provides
-    var function: String?
+    public var function: String?
     
     /// Optional supplier information for the tool
-    var supplier: Supplier?
+    public var supplier: Supplier?
     
     /// Description of the tool's purpose and capabilities
-    var description: String = ""
+    public var description: String = ""
     
     /// Optional version identifier for the tool
-    var version: String?
+    public var version: String?
     
     private enum CodingKeys: String, CodingKey {
         case id = "assetId"
