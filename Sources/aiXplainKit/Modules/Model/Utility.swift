@@ -82,8 +82,7 @@ public final class UtilityModel: Codable {
             inputs.append(UtilityModelInputInformation(name: param.name, description: "", type: UtilityModelInputType(rawValue: param.dataType) ?? .text))
         }
         
-        self.init(id: model.id, name: model.name, code: "", description: model.description, inputs: inputs, outputExamples: "")
-        
+        self.init(id: model.id, name: model.name, code: "", description: model.description, inputs: inputs, outputExamples: "",version: model.version?.id ?? "")
         self.modelInstance = model
         
         Task{
