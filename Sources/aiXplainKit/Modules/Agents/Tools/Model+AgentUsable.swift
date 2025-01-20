@@ -8,6 +8,6 @@
 import Foundation
 extension Model:AgentUsableTool{
     public func convertToTool() -> Tool {
-        return Tool(id: self.id, type: .model, function: function,supplier: self.supplier, version: self.version)
+        return Tool(id: self.id, type: .model, function: function,supplier: self.supplier, version: self.version?.id)
     }
 }

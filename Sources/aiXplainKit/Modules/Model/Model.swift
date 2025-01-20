@@ -45,7 +45,7 @@ do {
     // Handle errors
 }```
  */
-public class Model: DecodableAsset, EncodableAsset, CustomStringConvertible {
+public class Model:Codable, CustomStringConvertible {
 
     /// Unique identifier for the model.
     public var id: String
@@ -60,7 +60,7 @@ public class Model: DecodableAsset, EncodableAsset, CustomStringConvertible {
     public var supplier: Supplier
 
     /// Version of the model.
-    public var version: String
+    public var version: Version?
 
     /// Optional license information associated with the model.
     public let license: License?
@@ -96,7 +96,7 @@ public class Model: DecodableAsset, EncodableAsset, CustomStringConvertible {
         description += "  Description: \(self.modelDescription)\n"
         description += "  Hosted By: \(hostedBy)\n"
         description += "  Developed By: \(developedBy)\n"
-        description += "  Version: \(version)\n"
+        description += "  Version: \(version.debugDescription)\n"
         description += "  Pricing: \(pricing)\n"
         if !parameters.isEmpty {
             description += "  Parameters:\n"
@@ -127,7 +127,7 @@ public class Model: DecodableAsset, EncodableAsset, CustomStringConvertible {
         modelDescription = try container.decodeIfPresent(String.self, forKey: .description) ?? "An ML Model"
         description = modelDescription
         supplier = try container.decodeIfPresent(Supplier.self, forKey: .supplier) ?? Supplier(id: 0, name: "no", code: "")
-        version = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .version).decodeIfPresent(String.self, forKey: .id) ?? "-"
+        version = try container.decodeIfPresent(Version.self, forKey: .version)
         pricing = try container.decode(Pricing.self, forKey: .pricing)
         hostedBy = try container.decode(String.self, forKey: .hostedBy)
         developedBy = try container.decode(String.self, forKey: .developedBy)
@@ -154,7 +154,7 @@ public class Model: DecodableAsset, EncodableAsset, CustomStringConvertible {
     ///   - hostedBy: The entity or platform hosting the model.
     ///   - developedBy: The organization or individual who developed the model.
     ///   - networking: Networking service used for API calls.
-    public init(id: String, name: String, description: String, supplier: Supplier, version: String, license: License? = nil, privacy: Privacy? = nil, pricing: Pricing, hostedBy: String, developedBy: String, networking: Networking) {
+    public init(id: String, name: String, description: String, supplier: Supplier, version: Version? = nil, license: License? = nil, privacy: Privacy? = nil, pricing: Pricing, hostedBy: String, developedBy: String, networking: Networking) {
         self.id = id
         self.name = name
         self.modelDescription = description

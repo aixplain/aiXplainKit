@@ -11,7 +11,7 @@ public final class UtilityModel: Codable {
     public var inputs: [UtilityModelInputInformation]
     public var outputExamples: String
     public let supplier: Supplier?
-    public let version: String?
+    public var version: String?
     public let isSubscribed: Bool = false
     private var modelInstance:Model?
     
@@ -94,8 +94,9 @@ public final class UtilityModel: Codable {
     
     
     public func updateCode() async throws -> String?{
-        if let model = modelInstance,
-           let versionUrl = URL(string: model.version) {
+        if  let model = modelInstance,
+            let version = model.version,
+            let versionUrl = URL(string: version.id) {
             let (data, response) = try await URLSession.shared.data(from: versionUrl)
             
             if let httpResponse = response as? HTTPURLResponse,
