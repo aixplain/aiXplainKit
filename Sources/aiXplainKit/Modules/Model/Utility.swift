@@ -11,7 +11,7 @@ public final class UtilityModel: Codable {
     public var inputs: [UtilityModelInputInformation]
     public var outputExamples: String
     public let supplier: Supplier?
-    public let version: String?
+    public var version: String?
     public let isSubscribed: Bool = false
     private var modelInstance:Model?
     
@@ -82,7 +82,8 @@ public final class UtilityModel: Codable {
             inputs.append(UtilityModelInputInformation(name: param.name, description: "", type: UtilityModelInputType(rawValue: param.dataType) ?? .text))
         }
         
-        self.init(id: model.id, name: model.name, code: "", description: model.description, inputs: inputs, outputExamples: "")
+        self.init(id: model.id, name: model.name, code: "", description: model.description, inputs: inputs, outputExamples: "",version: model.version?.id ?? "")
+        self.modelInstance = model
         
         Task{
             try await updateCode()
@@ -91,9 +92,10 @@ public final class UtilityModel: Codable {
     
     
     
-    func updateCode() async throws {
-        if let model = modelInstance,
-           let versionUrl = URL(string: model.version) {
+    public func updateCode() async throws -> String?{
+        if  let model = modelInstance,
+            let version = model.version,
+            let versionUrl = URL(string: version.id) {
             let (data, response) = try await URLSession.shared.data(from: versionUrl)
             
             if let httpResponse = response as? HTTPURLResponse,
@@ -103,8 +105,16 @@ public final class UtilityModel: Codable {
             
             if let codeString = String(data: data, encoding: .utf8) {
                 self.code = codeString
+                return codeString
             }
+            
+            return nil
         }
+        return nil
+    }
+    
+    public func updateModelInstance() async throws{
+        self.modelInstance = try await ModelProvider().get(self.id)
     }
     
 }
