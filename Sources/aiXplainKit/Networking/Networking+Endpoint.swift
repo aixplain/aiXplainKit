@@ -50,11 +50,19 @@ extension Networking {
         
         case agents(agentIdentifier: String)
         
+        case agentRun(agentIdentifier: String)
+        
         case paginateAgents
         
         case utilities
         
         case functions
+        
+        case agentCommunities(agentIdentifier: String)
+        
+        case agentCommunityRun(agentIdentifier: String)
+        
+        case paginateTeamAgents
 
         /// The path for the endpoint
         var path: String {
@@ -86,6 +94,17 @@ extension Networking {
                 return "/sdk/utilities"
             case .functions:
                 return "/sdk/functions"
+            case .agentCommunities(agentIdentifier: let teamAgentIdentifier):
+                if teamAgentIdentifier.isEmpty {
+                    return "/sdk/agent-communities"
+                }
+                return "/sdk/agent-communities/\(teamAgentIdentifier)"
+            case .agentCommunityRun(agentIdentifier: let agentIdentifier):
+                return "/sdk/agent-communities/\(agentIdentifier)/run"
+            case .agentRun(agentIdentifier: let agentIdentifier):
+                return "/sdk/agents/run/\(agentIdentifier)"
+            case .paginateTeamAgents:
+                return "/sdk/agent-communities"
             }
         }
     }
