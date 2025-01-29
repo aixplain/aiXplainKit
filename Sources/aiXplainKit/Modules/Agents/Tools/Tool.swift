@@ -82,6 +82,7 @@ public struct Tool: Codable, AgentUsableTool {
 enum ToolType: String, Codable {
     /// Represents an AI model tool
     case model
+    
     /// Represents a pipeline tool
     case pipiline
 }
