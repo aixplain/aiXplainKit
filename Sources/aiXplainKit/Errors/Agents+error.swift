@@ -46,6 +46,8 @@ enum AgentsError: Error, Equatable {
     case errorOnDelete(error:String)
     
     case errorOnUpdate(error:String)
+    
+    case teamOfAgentsHasNoAgents
 
     var localizedDescription: String {
         switch self {
@@ -78,6 +80,8 @@ enum AgentsError: Error, Equatable {
             return "Agent couldn't be deleted. Check if you own the Agent and try again. Error: \(error)"
         case .errorOnUpdate(error: let error):
             return "Agent couldn't be updated. Check if you own the Agent and try again. Error: \(error)"
+        case .teamOfAgentsHasNoAgents:
+            return "The team of agents has no agents."
         }
     }
 }
