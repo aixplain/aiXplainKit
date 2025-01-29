@@ -154,9 +154,20 @@ public final class AgentProvider {
         }
 
         do {
+            struct agentID:Codable{
+                var id:String
+            }
+
             logger.debug("\(String(data: response.0, encoding: .utf8)!)")
-            let fetchedAgents:[Agent] = try JSONDecoder().decode([Agent].self, from: response.0)
-           
+            let fetchedAgentID:[agentID] = try JSONDecoder().decode([agentID].self, from: response.0)
+            var fetchedAgents:[Agent] = []
+            
+            for agentID in fetchedAgentID{
+                if let agent = try? await get(agentID.id){
+                    fetchedAgents.append(agent)
+                }
+            }
+
             logger.info("\(fetchedAgents.count) fetched")
             return fetchedAgents
         } catch {
