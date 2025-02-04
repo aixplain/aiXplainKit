@@ -102,7 +102,7 @@ extension Networking {
             case .agentCommunityRun(agentIdentifier: let agentIdentifier):
                 return "/sdk/agent-communities/\(agentIdentifier)/run"
             case .agentRun(agentIdentifier: let agentIdentifier):
-                return "/sdk/agents/run/\(agentIdentifier)"
+                return "/sdk/agents/\(agentIdentifier)/run"
             case .paginateTeamAgents:
                 return "/sdk/agent-communities"
             }
