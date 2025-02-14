@@ -40,8 +40,8 @@ public final class Agent: Codable {
     /// The timestamp when the agent was last updated.
     public let updatedAt: Date
     
-    /// The instructions for the agent.
-    public var instructions: String
+    /// The role or instructions that define the agent's behavior and purpose.
+    public var role: String
     
     /// A logger instance for recording events and debugging information.
     private let logger: Logger
@@ -79,7 +79,7 @@ public final class Agent: Codable {
         let updatedAtString = try container.decode(String.self, forKey: .updatedAt)
         updatedAt = dateFormatter.date(from: updatedAtString) ?? Date()
         
-        instructions = try container.decodeIfPresent(String.self, forKey: .instructions) ?? ""
+        role = try container.decodeIfPresent(String.self, forKey: .role) ?? ""
         
         logger = Logger(subsystem: "AiXplain", category: "Agent(\(name))")
         networking = Networking()
@@ -97,8 +97,8 @@ public final class Agent: Codable {
     ///   - createdAt: The creation timestamp of the agent.
     ///   - updatedAt: The last update timestamp of the agent.
     ///   - assets: The assets associated with the agent.
-    ///   - instructions: The instructions for the agent.
-    public init(id: String, name: String, status: String, teamId: Int, description: String, llmId: String, createdAt: Date, updatedAt: Date, assets: [Tool] = [], instructions: String = "") {
+    ///   - role: The role that defines the agent's behavior and purpose.
+    public init(id: String, name: String, status: String, teamId: Int, description: String, llmId: String, createdAt: Date, updatedAt: Date, assets: [Tool] = [], role: String = "") {
         self.id = id
         self.name = name
         self.status = status
@@ -108,7 +108,7 @@ public final class Agent: Codable {
         self.assets = assets
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.instructions = instructions
+        self.role = role
         self.logger = Logger(subsystem: "AiXplain", category: "Agent(\(name))")
         self.networking = Networking()
     }
@@ -129,12 +129,12 @@ public final class Agent: Codable {
         try container.encode(assets, forKey: .assets)
         try container.encode(createdAt, forKey: .createdAt)
         try container.encode(updatedAt, forKey: .updatedAt)
-        try container.encode(instructions, forKey: .instructions)
+        try container.encode(role, forKey: .role)
     }
     
     /// Private keys for encoding and decoding the `Agent` properties.
     private enum CodingKeys: String, CodingKey {
-        case id, name, status, teamId, description, llmId, createdAt, updatedAt, assets, instructions
+        case id, name, status, teamId, description, llmId, createdAt, updatedAt, assets, role
     }
 }
 
