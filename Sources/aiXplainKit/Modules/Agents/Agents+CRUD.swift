@@ -73,7 +73,7 @@ extension Agent {
     ///
     /// # Example
     /// ```swift
-    func update()async throws {
+    public func update()async throws {
         let headers = try networking.buildHeader()
         
         guard let url = APIKeyManager.shared.BACKEND_URL else {

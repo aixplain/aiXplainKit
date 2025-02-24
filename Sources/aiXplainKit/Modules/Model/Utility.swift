@@ -95,7 +95,7 @@ public final class UtilityModel: Codable {
     public func updateCode() async throws -> String?{
         if  let model = modelInstance,
             let version = model.version,
-            let versionUrl = URL(string: version.id) {
+            let versionUrl = URL(string: version.id ?? "") {
             let (data, response) = try await URLSession.shared.data(from: versionUrl)
             
             if let httpResponse = response as? HTTPURLResponse,

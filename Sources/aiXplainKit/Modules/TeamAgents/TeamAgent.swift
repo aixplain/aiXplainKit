@@ -1,148 +1,204 @@
 //
-//  Agents.swift
+//  File.swift
 //  aiXplainKit
 //
-//  Created by Joao Maia on 11/11/24.
+//  Created by Joao Maia on 24/01/25.
 //
 
 import Foundation
-import os
+import OSLog
 
-/// A class representing an agent in the aiXplain ecosystem.
-///
-/// The `Agent` class is designed to manage and execute tasks for an agent, including handling inputs, configuring parameters,
-/// and retrieving results. It supports various execution methods and includes utilities for polling and network handling.
-public final class Agent: Codable {
+/// Team Agents are a sophisticated type of agent on the aiXplain platform, designed for handling complex,
+/// multi-step tasks that require coordination between multiple components. By leveraging a system of
+/// specialized agents, tools, and workflows, Team Agents excel in scenarios that demand advanced task
+/// planning, quality control, and adaptability.
+public class TeamAgent: Codable {
+    /// Unique identifier for the team agent
+    private(set) public var id: String
     
-    // MARK: - Properties
+    /// Name of the team agent
+    public let name: String
     
-    /// The unique identifier of the agent.
-    public var id: String
+    /// Array of agent identifiers that are part of this team
+    private(set) public var agents: [String]
     
-    /// The name of the agent.
-    public var name: String
+    /// Description of the team agent's purpose and capabilities
+    public let description: String?
     
-    /// The current status of the agent.
-    public var status: String
+    /// Identifier for the language model associated with this team agent
+    public let llmID: String?
     
-    /// The identifier of the team associated with the agent.
-    public let teamId: Int
+    /// Information about the supplier of this team agent
+    public let supplier: Supplier?
     
-    /// A description of the agent.
-    public var description: String
+    /// Version information for this team agent
+    public let version: Version?
     
-    /// The identifier of the associated large language model (LLM).
-    public let llmId: String
+    /// Identifier for the supervisor agent that oversees the team's operations
+    public let supervisorId: String?
     
-    /// The timestamp when the agent was created.
-    public let createdAt: Date
-    
-    /// The timestamp when the agent was last updated.
-    public let updatedAt: Date
-    
-    /// The role or instructions that define the agent's behavior and purpose.
-    public var role: String
+    /// Identifier for the planner agent that coordinates task execution
+    public let plannerId: String?
+        
     
     /// A logger instance for recording events and debugging information.
     private let logger: Logger
     
-    /// The assets associated with the agent.
-    public var assets: [Tool]
-    
     /// The networking service responsible for making API calls and handling URL sessions.
     var networking: Networking
     
+    public var status:String = "draft"
     
-    // MARK: - Initializers
+    public var useMentalistAndInspector:Bool = true
     
-    /// Creates an instance of `Agent` from a decoder.
-    ///
-    /// - Parameter decoder: The decoder to use for decoding the agent data.
-    /// - Throws: An error if the decoding process fails.
-    public init(from decoder: Decoder) throws {
+    
+    /// Creates a new team agent with the specified parameters.
+    /// - Parameters:
+    ///   - id: The unique identifier for the team agent.
+    ///   - name: The name of the team agent.
+    ///   - agents: An array of agent identifiers that are part of this team.
+    ///   - description: An optional description of the team agent's purpose or capabilities.
+    ///   - llmID: An optional identifier for the language model associated with this team agent.
+    ///   - supplier: An optional supplier information for this team agent.
+    ///   - version: An optional version information for this team agent.
+    ///   - status: The status of the team agent, defaults to "draft".
+    ///   - useMentalistAndInspector: A flag indicating whether to use mentalist and inspector features, defaults to true.
+    init(id: String, name: String, agents: [String], description: String? = nil, llmID: String? = nil, supplier: Supplier? = nil, version: Version? = nil, status: String = "draft", useMentalistAndInspector: Bool = true) {
+        self.id = id
+        self.name = name
+        self.agents = agents
+        self.description = description
+        self.llmID = llmID
+        self.supplier = supplier
+        self.version = version
+        self.status = status
+        self.useMentalistAndInspector = useMentalistAndInspector
+        self.logger = Logger(subsystem: "aiXplainKit", category: "TeamAgent")
+        self.networking = Networking()
+        self.supervisorId = llmID
+        self.plannerId = llmID
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case agents
+        case description
+        case llmID = "llm_id"
+        case supplier
+        case version
+        case status
+        case useMentalistAndInspector = "use_mentalist_and_inspector"
+        case supervisorId = "supervisor_id"
+        case plannerId = "planner_id"
+    }
+    
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
         id = try container.decode(String.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
-        status = try container.decode(String.self, forKey: .status)
-        teamId = try container.decode(Int.self, forKey: .teamId)
-        description = try container.decodeIfPresent(String.self, forKey: .description) ?? "No description"
-        llmId = try container.decode(String.self, forKey: .llmId)
-        assets = try container.decodeIfPresent([Tool].self, forKey: .assets) ?? []
         
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        // Decode agents array from response format
+        let agentsArray = try container.decode([AgentResponse].self, forKey: .agents)
+        agents = agentsArray.map { $0.assetId }
         
-        let createdAtString = try container.decode(String.self, forKey: .createdAt)
-        createdAt = dateFormatter.date(from: createdAtString) ?? Date()
-        
-        let updatedAtString = try container.decode(String.self, forKey: .updatedAt)
-        updatedAt = dateFormatter.date(from: updatedAtString) ?? Date()
-        
-        role = try container.decodeIfPresent(String.self, forKey: .role) ?? ""
-        
+        description = try container.decodeIfPresent(String.self, forKey: .description)
+        llmID = try container.decodeIfPresent(String.self, forKey: .llmID)
+        supplier = try container.decodeIfPresent(Supplier.self, forKey: .supplier)
+        version = try container.decodeIfPresent(Version.self, forKey: .version)
+        status = try container.decodeIfPresent(String.self, forKey: .status) ?? "draft"
+        useMentalistAndInspector = try container.decodeIfPresent(Bool.self, forKey: .useMentalistAndInspector) ?? true
+        supervisorId = try container.decodeIfPresent(String.self, forKey: .supervisorId)
+        plannerId = try container.decodeIfPresent(String.self, forKey: .plannerId)
         logger = Logger(subsystem: "AiXplain", category: "Agent(\(name))")
         networking = Networking()
     }
     
-    /// Creates a new instance of `Agent` with specific properties.
-    ///
-    /// - Parameters:
-    ///   - id: The unique identifier of the agent.
-    ///   - name: The name of the agent.
-    ///   - status: The current status of the agent.
-    ///   - teamId: The identifier of the associated team.
-    ///   - description: A brief description of the agent.
-    ///   - llmId: The identifier of the associated large language model.
-    ///   - createdAt: The creation timestamp of the agent.
-    ///   - updatedAt: The last update timestamp of the agent.
-    ///   - assets: The assets associated with the agent.
-    ///   - role: The role that defines the agent's behavior and purpose.
-    public init(id: String, name: String, status: String, teamId: Int, description: String, llmId: String, createdAt: Date, updatedAt: Date, assets: [Tool] = [], role: String = "") {
-        self.id = id
-        self.name = name
-        self.status = status
-        self.teamId = teamId
-        self.description = description
-        self.llmId = llmId
-        self.assets = assets
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
-        self.role = role
-        self.logger = Logger(subsystem: "AiXplain", category: "Agent(\(name))")
-        self.networking = Networking()
+    private struct AgentResponse: Codable {
+        let assetId: String
+        let type: String
+        let number: Int
+        let label: String
+        
+        private enum CodingKeys: String, CodingKey {
+            case assetId
+            case type
+            case number
+            case label
+        }
     }
     
-    /// Encodes the `Agent` instance into the provided encoder.
-    ///
-    /// - Parameter encoder: The encoder to use for encoding the agent.
-    /// - Throws: An error if the encoding process fails.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
+        try container.encode(agents, forKey: .agents)
+        try container.encodeIfPresent(description, forKey: .description)
+        try container.encodeIfPresent(llmID, forKey: .llmID)
+        try container.encodeIfPresent(supplier, forKey: .supplier)
+        try container.encodeIfPresent(version, forKey: .version)
         try container.encode(status, forKey: .status)
-        try container.encode(teamId, forKey: .teamId)
-        try container.encode(description, forKey: .description)
-        try container.encode(llmId, forKey: .llmId)
-        try container.encode(assets, forKey: .assets)
-        try container.encode(createdAt, forKey: .createdAt)
-        try container.encode(updatedAt, forKey: .updatedAt)
-        try container.encode(role, forKey: .role)
+        try container.encode(useMentalistAndInspector, forKey: .useMentalistAndInspector)
+        try container.encodeIfPresent(supervisorId, forKey: .supervisorId)
+        try container.encodeIfPresent(plannerId, forKey: .plannerId)
     }
     
-    /// Private keys for encoding and decoding the `Agent` properties.
-    private enum CodingKeys: String, CodingKey {
-        case id, name, status, teamId, description, llmId, createdAt, updatedAt, assets, role
+    
+    func encode() throws -> Data {
+        let agentDicts = agents.enumerated().map { (idx, agent) in
+            [
+                "assetId": agent,
+                "number": idx,
+                "type": "AGENT",
+                "label": "AGENT"
+            ] as [String: Any]
+        }
+        
+        var dict: [String: Any] = [
+            "id": id,
+            "name": name,
+            "agents": agentDicts,
+            "links": [],
+            "description": description ?? "",
+            "llmId": llmID ?? "",
+            "supervisorId": supervisorId ?? llmID ?? ""
+        ]
+        
+        if useMentalistAndInspector {
+            dict["plannerId"] = plannerId ?? llmID ?? ""
+        }
+        
+        if let supplier = supplier {
+            dict["supplier"] = supplier
+        }
+        
+        if let version = version {
+            dict["version"] = version
+        }
+        
+        dict["status"] = status
+        
+        return try JSONSerialization.data(withJSONObject: dict)
+    }
+    
+    
+    func update(id:String){
+        self.id = id
+    }
+    
+    func update(agents:[String]){
+        self.agents = agents
+    }
+    
+    func removeAgent(where removingFunction:(String)->Bool){
+        agents.removeAll(where: { agendID in
+            return removingFunction(agendID)
+        })
     }
 }
 
-
-// MARK: - Agent Execution
-
-extension Agent {
-    
+//MARK: - Execution
+extension TeamAgent{
     /// Executes the agent with specified input and parameters.
     ///
     /// This method sends the given input to the agent, configured with the provided parameters,
@@ -174,7 +230,7 @@ extension Agent {
             throw AgentsError.missingBackendURL
         }
         
-        guard let url = URL(string: backendURL.absoluteString + Networking.Endpoint.agentRun(agentIdentifier: self.id).path ) else {
+        guard let url = URL(string: backendURL.absoluteString + Networking.Endpoint.agentCommunityRun(agentIdentifier: self.id).path) else {
             throw AgentsError.invalidURL(url: backendURL.absoluteString)
         }
         

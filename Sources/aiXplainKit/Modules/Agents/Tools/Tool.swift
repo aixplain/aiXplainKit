@@ -47,9 +47,9 @@ public struct Tool: Codable, AgentUsableTool {
     /// - Throws: DecodingError if decoding fails
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
-        type = try container.decode(ToolType.self, forKey: .type)
-        function = try? container.decode(String.self, forKey: .function)
+        id = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
+        type = try container.decodeIfPresent(ToolType.self, forKey: .type) ?? .model
+        function = try? container.decode(String.self, forKey: .function) 
         supplier = try? container.decode(Supplier.self, forKey: .supplier)
         description = try container.decode(String.self, forKey: .description)
         version = try? container.decode(String.self, forKey: .version)
@@ -82,6 +82,7 @@ public struct Tool: Codable, AgentUsableTool {
 enum ToolType: String, Codable {
     /// Represents an AI model tool
     case model
+    
     /// Represents a pipeline tool
     case pipiline
 }

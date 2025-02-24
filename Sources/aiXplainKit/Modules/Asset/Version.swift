@@ -9,5 +9,5 @@ import Foundation
 
 public struct Version:Codable{
     public let name:String?
-    public let id:String
+    public let id:String?
 }

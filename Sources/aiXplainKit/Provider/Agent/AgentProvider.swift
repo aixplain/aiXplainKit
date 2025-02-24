@@ -154,14 +154,52 @@ public final class AgentProvider {
         }
 
         do {
+            struct agentID:Codable{
+                var id:String
+            }
+
             logger.debug("\(String(data: response.0, encoding: .utf8)!)")
-            let fetchedAgents:[Agent] = try JSONDecoder().decode([Agent].self, from: response.0)
-           
+            let fetchedAgentID:[agentID] = try JSONDecoder().decode([agentID].self, from: response.0)
+            var fetchedAgents:[Agent] = []
+            
+            for agentID in fetchedAgentID{
+                if let agent = try? await get(agentID.id){
+                    fetchedAgents.append(agent)
+                }
+            }
+
             logger.info("\(fetchedAgents.count) fetched")
             return fetchedAgents
         } catch {
             logger.error("\(String(describing: error))")
             throw error
         }
+    }
+    
+    
+    public func list(_ query: ModelQuery) async throws -> [Agent] {
+        let headers: [String: String] = try networking.buildHeader()
+
+        guard let url = APIKeyManager.shared.BACKEND_URL else {
+            throw ModelError.missingBackendURL
+        }
+
+        let endpoint = Networking.Endpoint.paginateAgents
+        guard let url = URL(string: url.absoluteString + endpoint.path) else {
+            throw ModelError.invalidURL(url: url.absoluteString + endpoint.path)
+        }
+
+        let body = try query.buildQuery()
+        let response = try await networking.post(url: url, headers: headers, body: body)
+
+        if let httpUrlResponse = response.1 as? HTTPURLResponse,
+           httpUrlResponse.statusCode != 201 {
+            throw NetworkingError.invalidStatusCode(statusCode: httpUrlResponse.statusCode)
+        }
+
+//        if let stringedResponse = String(data: response.0, encoding: .utf8) {
+//            return parseModelQueryResponse(stringedResponse) ?? []
+//        }
+        return []
     }
 }

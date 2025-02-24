@@ -81,7 +81,6 @@ extension AgentProvider {
         
         let encodedAgent = try JSONEncoder().encode(agent)
         let response = try await networking.post(url: url, headers: headers, body: encodedAgent)
-        //TODO: Handle error
          if let httpUrlResponse = response.1 as? HTTPURLResponse,
            !(200...299).contains(httpUrlResponse.statusCode) {
             throw NetworkingError.invalidStatusCode(statusCode: httpUrlResponse.statusCode)
