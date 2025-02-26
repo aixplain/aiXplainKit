@@ -51,6 +51,7 @@ extension AgentProvider {
     public func create(
         name: String,
         description: String,
+        instructions: String? = nil,
         llmId: String = "6646261c6eb563165658bbb1",
         tools: [CreateAgentTool],
         supplier: String = "",
@@ -75,7 +76,8 @@ extension AgentProvider {
             description: description,
             llmId: llmId,
             createdAt: .now,
-            updatedAt: .now
+            updatedAt: .now,
+            role: instructions ?? ""
         )
         agent.assets = tools.map { $0.convertToTool() }
         
