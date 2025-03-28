@@ -51,7 +51,7 @@ extension Dictionary: AgentInputable where Key == String, Value == AgentInputabl
             switch value {
             case let url as URL:
                 let remoteURL = try await fileUploadManager.uploadDataIfNeedIt(from: url)
-                parsedSequence.updateValue(remoteURL.absoluteString, forKey: key)
+                parsedSequence.updateValue(remoteURL.absoluteString.removingPercentEncoding ?? remoteURL.absoluteString , forKey: key)
             case let string as String:
                 parsedSequence.updateValue(string, forKey: key)
             default:

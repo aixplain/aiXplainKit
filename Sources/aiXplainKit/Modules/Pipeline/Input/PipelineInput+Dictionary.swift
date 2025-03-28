@@ -44,7 +44,7 @@ extension Dictionary: PipelineInput where Key == String, Value == PipelineInput 
             switch value {
             case let url as URL:
                 let remoteURL = try await fileUploadManager.uploadDataIfNeedIt(from: url)
-                valuesDict.updateValue(remoteURL.absoluteString, forKey: "value")
+                valuesDict.updateValue(remoteURL.absoluteString.removingPercentEncoding ?? remoteURL.absoluteString, forKey: "value")
             case let string as String:
                 valuesDict.updateValue(string, forKey: "value")
             default:

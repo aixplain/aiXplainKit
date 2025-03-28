@@ -62,7 +62,7 @@ extension URL: AgentInputable {
         default:
             let fileManager = FileUploadManager()
             let s3URL = try await fileManager.uploadFile(at: self)
-            payload.updateValue(s3URL.absoluteString, forKey: "data")
+            payload.updateValue(s3URL.absoluteString.removingPercentEncoding ?? s3URL.absoluteString, forKey: "data")
         }
 
         guard let jsonData = try? JSONSerialization.data(withJSONObject: payload, options: []) else {
