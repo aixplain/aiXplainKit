@@ -88,6 +88,9 @@ public class Model:Codable, CustomStringConvertible {
     private let logger: Logger
     
     public var description: String = ""
+    
+    public var supportsStreaming:Bool = true
+    
 
     public var debugDescription: String {
         var description = "Model:\n"
@@ -98,6 +101,7 @@ public class Model:Codable, CustomStringConvertible {
         description += "  Developed By: \(developedBy)\n"
         description += "  Version: \(version.debugDescription)\n"
         description += "  Pricing: \(pricing)\n"
+        description += "  Support Streamming: \(supportsStreaming)\n"
         if !parameters.isEmpty {
             description += "  Parameters:\n"
             for param in parameters {
@@ -134,6 +138,7 @@ public class Model:Codable, CustomStringConvertible {
         parameters = (try? container.decodeIfPresent([ModelParameter].self, forKey: .params)) ?? []
         
         function = try? container.decodeIfPresent(Function.self, forKey: .function)
+        supportsStreaming = try container.decodeIfPresent(Bool.self, forKey: .supportsStreaming) ?? false
         
         privacy = nil
         license = nil
@@ -190,7 +195,7 @@ public class Model:Codable, CustomStringConvertible {
 
     // Private enum for coding keys to improve readability and maintainability.
     private enum CodingKeys: String, CodingKey {
-        case id, name, description, supplier, version, license, privacy, pricing, hostedBy, developedBy, params, function
+        case id, name, description, supplier, version, license, privacy, pricing, hostedBy, developedBy, params, function, supportsStreaming
     }
 }
 
