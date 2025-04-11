@@ -51,7 +51,7 @@ public struct Tool: Codable, AgentUsableTool {
         type = try container.decodeIfPresent(ToolType.self, forKey: .type) ?? .model
         function = try? container.decode(String.self, forKey: .function) 
         supplier = try? container.decode(Supplier.self, forKey: .supplier)
-        description = try container.decode(String.self, forKey: .description)
+        description = try container.decodeIfPresent(String.self, forKey: .description) ?? ""
         version = try? container.decode(String.self, forKey: .version)
     }
     
