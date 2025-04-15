@@ -14,6 +14,7 @@ public final class UtilityModel: Codable {
     public var version: String?
     public let isSubscribed: Bool = false
     private var modelInstance:Model?
+    public var status:String = "draft"
     
     
     enum CodingKeys: String, CodingKey {
@@ -26,6 +27,7 @@ public final class UtilityModel: Codable {
         case supplier
         case version
         case isSubscribed
+        case status
     }
     
 
@@ -41,7 +43,7 @@ public final class UtilityModel: Codable {
         self.version = version
     }
     
-    init(id: String, name: String, code: String, description: String, inputs: [UtilityModelInputInformation], outputExamples: String, supplier: Supplier? = nil, version: String? = nil) {
+    init(id: String, name: String, code: String, description: String, inputs: [UtilityModelInputInformation], outputExamples: String, supplier: Supplier? = nil, version: String? = nil, status:String = "draft") {
         self.id = id
         self.name = name
         self.code = code
@@ -50,6 +52,7 @@ public final class UtilityModel: Codable {
         self.outputExamples = outputExamples
         self.supplier = supplier
         self.version = version
+        self.status = status
     }
     
     
@@ -63,6 +66,7 @@ public final class UtilityModel: Codable {
         outputExamples = try container.decode(String.self, forKey: .outputExamples)
         supplier = try container.decodeIfPresent(Supplier.self, forKey: .supplier)
         version = try container.decodeIfPresent(String.self, forKey: .version)
+        status = try container.decodeIfPresent(String.self, forKey: .status) ?? "draft"
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -72,6 +76,7 @@ public final class UtilityModel: Codable {
         try container.encode(inputs, forKey: .inputs)
         try container.encode(code, forKey: .code)
         try container.encode(outputExamples, forKey: .outputExamples)
+        try container.encode(status, forKey: .status)
     }
     
     
@@ -87,11 +92,13 @@ public final class UtilityModel: Codable {
         
         Task{
             try await updateCode()
+            try await syncStatus()
         }
     }
     
     
     
+    @discardableResult
     public func updateCode() async throws -> String?{
         if  let model = modelInstance,
             let version = model.version,
@@ -113,8 +120,42 @@ public final class UtilityModel: Codable {
         return nil
     }
     
+    
     public func updateModelInstance() async throws{
         self.modelInstance = try await ModelProvider().get(self.id)
+    }
+    
+    @discardableResult
+    public func syncStatus(networking: Networking? = nil) async throws{
+        let networking = networking ?? Networking()
+        let headers: [String: String] = try networking.buildHeader()
+
+        guard let url = APIKeyManager.shared.BACKEND_URL else {
+            throw ModelError.missingBackendURL
+        }
+
+        let endpoint = Networking.Endpoint.model(modelIdentifier: self.id)
+        guard let url = URL(string: url.absoluteString + endpoint.path) else {
+            throw ModelError.invalidURL(url: url.absoluteString + endpoint.path)
+        }
+
+        let response = try await networking.get(url: url, headers: headers)
+
+        if let httpUrlResponse = response.1 as? HTTPURLResponse,
+           httpUrlResponse.statusCode != 200 {
+            throw NetworkingError.invalidStatusCode(statusCode: httpUrlResponse.statusCode)
+        }
+        
+        struct statusResponse: Decodable{
+            var status: String
+        }
+
+        do {
+            let fetchedModel = try JSONDecoder().decode(statusResponse.self, from: response.0)
+            self.status = fetchedModel.status
+        } catch {
+            throw error
+        }
     }
     
 }
@@ -185,6 +226,12 @@ extension UtilityModel{
         } catch {
             throw ModelError.unableToUpdateModelUtility(error: error.localizedDescription)
         }
+        
+    }
+    
+    /// Deploy model
+    public func deploy() async throws {
+        self.status = "onboarded"
     }
     
     /// Deletes the utility model from the server.
@@ -284,4 +331,5 @@ extension UtilityModel{
     }
     
 }
+
 
