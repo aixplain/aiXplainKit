@@ -73,7 +73,9 @@ public final class UtilityModel: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(name, forKey: .name)
         try container.encode(description, forKey: .description)
+                
         try container.encode(inputs, forKey: .inputs)
+        
         try container.encode(code, forKey: .code)
         try container.encode(outputExamples, forKey: .outputExamples)
         try container.encode(status, forKey: .status)
@@ -206,6 +208,7 @@ extension UtilityModel{
         }
         
         let payload = try JSONEncoder().encode(self)
+        
 
         let response = try await networking.put(url: url, body: payload, headers: headers)
 
@@ -232,6 +235,7 @@ extension UtilityModel{
     /// Deploy model
     public func deploy() async throws {
         self.status = "onboarded"
+        try await self.update()
     }
     
     /// Deletes the utility model from the server.
