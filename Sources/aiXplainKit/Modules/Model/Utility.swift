@@ -32,7 +32,7 @@ public final class UtilityModel: Codable {
     
 
     
-    init(id: String, name: String, code: String, description: String, inputs: [UtilityModelInput], outputExamples: String, supplier: Supplier? = nil, version: String? = nil) {
+    public init(id: String, name: String, code: String, description: String, inputs: [UtilityModelInput], outputExamples: String, supplier: Supplier? = nil, version: String? = nil) {
         self.id = id
         self.name = name
         self.code = code
@@ -43,7 +43,7 @@ public final class UtilityModel: Codable {
         self.version = version
     }
     
-    init(id: String, name: String, code: String, description: String, inputs: [UtilityModelInputInformation], outputExamples: String, supplier: Supplier? = nil, version: String? = nil, status:String = "draft") {
+    public init(id: String, name: String, code: String, description: String, inputs: [UtilityModelInputInformation], outputExamples: String, supplier: Supplier? = nil, version: String? = nil, status:String = "draft") {
         self.id = id
         self.name = name
         self.code = code
