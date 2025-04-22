@@ -89,7 +89,7 @@ public class Model:Codable, CustomStringConvertible {
     
     public var description: String = ""
     
-    public var supportsStreaming:Bool = true
+    public var supportsStreaming:Bool = false
     
 
     public var debugDescription: String {
