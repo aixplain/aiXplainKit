@@ -26,6 +26,20 @@ public class IndexModel:Model {
 
 //MARK: - Index model operations
 extension IndexModel{
+    /// Searches textual records using the provided full-text `query`.
+    ///
+    /// - Parameters:
+    ///   - query:     The free-form text that will be matched against the indexed
+    ///                corpus.
+    ///   - top_k:     The maximum amount of results to be returned. Defaults to
+    ///                `10`. **Note**: The underlying service expects the snake-
+    ///                cased key `top_k`, therefore the parameter label is kept
+    ///                as-is to avoid further transformations.
+    ///   - filters:   Optional metadata filters that will be applied server-side
+    ///                before the similarity computation.
+    /// - Returns: A fully decoded `IndexSearchOutput` instance.
+    /// - Throws:  `NetworkingError` or `ModelError` if any step in the execution
+    ///            pipeline fails.
     public func search(_ query:String, top_k:Int = 10, filters:[IndexFilter] = []) async throws -> IndexSearchOutput{
         
         //TODO: Images
@@ -51,10 +65,25 @@ extension IndexModel{
         
     }
     
+    /// Searches image records using the image located at `query`.
+    ///
+    /// The image will be uploaded to the aiXplain storage bucket first (if not
+    /// already hosted) and subsequently used as the search anchor.
+    ///
+    /// - Parameters:
+    ///   - query:   The local **file** `URL` of the image or a remote `URL`
+    ///              previously uploaded.
+    ///   - top_k:   The maximum amount of results to be returned. Defaults to
+    ///              `10`.
+    ///   - filters: Optional metadata filters.
+    ///
+    /// - Throws: `ModelError.invalidURL` if the provided URL does not reference
+    ///           an image; any error thrown by `FileUploadManager` or the
+    ///           networking layer.
     public func search(_ query:URL, top_k:Int = 10, filters:[IndexFilter] = []) async throws -> IndexSearchOutput{
         
-        if !query.mimeType().contains("image/") {
-            throw NSError(domain: "Invalid URL", code: 1001, userInfo: nil)
+        guard query.mimeType().hasPrefix("image/") else {
+            throw ModelError.invalidURL(url: query.absoluteString)
         }
         
         let fileLink = try await FileUploadManager().uploadDataIfNeedIt(from: query)
@@ -99,7 +128,9 @@ extension IndexModel{
         let data:[String:ModelInput] = ["action": "get_document", "data": documentID]
         let response = try await  self.run(data)
         
-        print(response)
+        #if DEBUG
+        debugPrint("[aiXplainKit] get(documentID:) response ->", response)
+        #endif
         if response.output.isEmpty{
             return nil
         }
@@ -122,7 +153,7 @@ extension IndexModel{
 //    Cannot find type 'async' in scope
     public subscript(id: String) -> Record? {
         get async throws {
-            try? await self.get(documentID: id)
+            try await self.get(documentID: id)
         }
     }
 }

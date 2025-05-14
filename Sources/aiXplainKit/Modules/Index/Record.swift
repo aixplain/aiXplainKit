@@ -15,7 +15,7 @@ public struct Record: Codable, Identifiable {
 
     // MARK: - Public Types
 
-    /// The underlying type of the record’s payload.
+    /// The underlying type of the record's payload.
     public enum RecordDataType: String, Codable {
         case text  = "text"
         case image = "image"
@@ -42,22 +42,35 @@ public struct Record: Codable, Identifiable {
         self.uri = nil
     }
 
-    /// Creates an image record.
+    /// Creates an image-based record.
+    ///
+    /// The referenced file will be uploaded to the aiXplain storage bucket (if
+    /// necessary) and the resulting remote `URL` stored in `uri`.
+    ///
+    /// - Parameters:
+    ///   - image:      A local file `URL` or a remote `URL` already pointing to
+    ///                 an image resource.
+    ///   - attributes: Optional metadata associated with the record.
+    ///   - id:         The identifier for the record. A random UUID is used if
+    ///                 none is supplied.
+    /// - Throws: `ModelError.invalidURL` when the provided `image` does not
+    ///           represent a supported image MIME type or any error thrown by
+    ///           `FileUploadManager`.
     public init(image: URL,
                 attributes: [String: String] = [:],
                 id: String = UUID().uuidString) async throws {
-        
-        if !image.mimeType().contains("image/") {
-            throw NSError(domain: "aiXplainKit", code: 1001, userInfo: [NSLocalizedDescriptionKey : "Unsupported image format"])
+
+        guard image.mimeType().hasPrefix("image/") else {
+            throw ModelError.invalidURL(url: image.absoluteString)
         }
-        
-        let uploadedURL = try await  FileUploadManager().uploadDataIfNeedIt(from: image)
-        
-        self.id = id
+
+        let uploadedURL = try await FileUploadManager().uploadDataIfNeedIt(from: image)
+
+        self.id            = id
         self.recordDataType = .image
-        self.value = ""
-        self.attributes = attributes
-        self.uri = uploadedURL
+        self.value         = ""
+        self.attributes    = attributes
+        self.uri           = uploadedURL
     }
 
     /// Asynchronously extracts text from a remote resource and initialises a textual record with the result.

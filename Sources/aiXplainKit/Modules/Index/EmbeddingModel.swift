@@ -7,7 +7,25 @@
 
 import Foundation
 
-//TODO: Docs
+/// A catalogue of embedding models supported by aiXplain.
+///
+/// Use instances of `EmbeddingModel` when creating vector indexes via
+/// `IndexProvider.create(name:description:embedding:engine:)`. Each case
+/// encapsulates the identifier required by the aiXplain backend. You can also
+/// supply an arbitrary model identifier through the ``custom(id:)`` case.
+///
+/// ```swift
+/// // Create an index backed by the OpenAI Ada v2 embedding model
+/// let index = try await IndexProvider().create(
+///     name: "Books",
+///     description: "Embeddings for the public-domain library",
+///     embedding: .OPENAI_ADA002
+/// )
+/// ```
+///
+/// To discover the identifiers for new models, consult the aiXplain console or
+/// contact support.
+
 public enum EmbeddingModel{
     case SNOWFLAKE_ARCTIC_EMBED_M_LONG
     case OPENAI_ADA002
@@ -18,6 +36,11 @@ public enum EmbeddingModel{
     case AIXPLAIN_LEGAL_EMBEDDINGS
     case custom(id: String)
     
+    /// The backend identifier corresponding to the embedding model.
+    ///
+    /// When the enum case is ``custom(id:)``, the supplied identifier is
+    /// returned verbatim; otherwise the constant identifier defined by
+    /// aiXplain is provided.
     var modelId: String {
         switch self {
         case .SNOWFLAKE_ARCTIC_EMBED_M_LONG:
@@ -39,7 +62,13 @@ public enum EmbeddingModel{
         }
     }
     
-    
+    /// Retrieves the underlying `Model` instance associated with the selected
+    /// embedding model.
+    ///
+    /// This method performs a network call through ``ModelProvider``.
+    ///
+    /// - Returns: A fully populated ``Model`` ready to be executed.
+    /// - Throws: An error if the model cannot be fetched from the backend.
     func getModel() async throws -> Model {
         return try await ModelProvider().get(self.modelId)
     }
