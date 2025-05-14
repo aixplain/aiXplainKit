@@ -10,7 +10,7 @@ import Foundation
 /// A filter used to constrain index search queries.
 ///
 /// `IndexFilter` represents a predicate that is evaluated against a document's
-/// metadata field when executing an [`IndexModel`](https://developer.apple.com/documentation/) search.
+/// metadata field when executing an search.
 /// Each filter is composed of the field name that should be inspected and an
 /// [`IndexFieldOperator`](#) that describes the comparison that must hold true
 /// for a document to be returned in the search results.
