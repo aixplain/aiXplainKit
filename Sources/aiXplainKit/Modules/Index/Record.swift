@@ -45,12 +45,19 @@ public struct Record: Codable, Identifiable {
     /// Creates an image record.
     public init(image: URL,
                 attributes: [String: String] = [:],
-                id: String = UUID().uuidString) {
+                id: String = UUID().uuidString) async throws {
+        
+        if !image.mimeType().contains("image/") {
+            throw NSError(domain: "aiXplainKit", code: 1001, userInfo: [NSLocalizedDescriptionKey : "Unsupported image format"])
+        }
+        
+        let uploadedURL = try await  FileUploadManager().uploadDataIfNeedIt(from: image)
+        
         self.id = id
         self.recordDataType = .image
         self.value = ""
         self.attributes = attributes
-        self.uri = image
+        self.uri = uploadedURL
     }
 
     /// Asynchronously extracts text from a remote resource and initialises a textual record with the result.

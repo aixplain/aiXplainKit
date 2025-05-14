@@ -47,6 +47,35 @@ extension IndexModel{
         let encodedData = try JSONSerialization.data(withJSONObject: data, options: [])
         
         
+        return try await self.runSearch(encodedData)
+        
+    }
+    
+    public func search(_ query:URL, top_k:Int = 10, filters:[IndexFilter] = []) async throws -> IndexSearchOutput{
+        
+        if !query.mimeType().contains("image/") {
+            throw NSError(domain: "Invalid URL", code: 1001, userInfo: nil)
+        }
+        
+        let fileLink = try await FileUploadManager().uploadDataIfNeedIt(from: query)
+        
+        
+        
+        let data:[String:Any] = [
+            "action" : "search",
+            "data" : "",
+            "data_type" : "image",
+            "filters": filters.map({$0.toDict()}), //This created a list of [string:string]
+            "payload": [
+                "uri" : fileLink.absoluteString,
+                "top_k" : top_k,
+                "value_type" : "image"
+            ]
+        ]
+        
+        
+        // JSONEncoder can't handle `[String: Any]`; use `JSONSerialization` instead
+        let encodedData = try JSONSerialization.data(withJSONObject: data, options: [])
         
         
         return try await self.runSearch(encodedData)

@@ -25,12 +25,12 @@ import Foundation
 import OSLog
 
 /// This class is responsible for managing the file uploads related operations for the Model and Pipeline.
-internal final class FileUploadManager {
+public final class FileUploadManager {
 
     let networking: Networking
     let logger: Logger
 
-    init() {
+    public init() {
         self.networking = Networking()
         self.logger = Logger(subsystem: "AiXplain", category: "FileManager")
     }
@@ -60,9 +60,9 @@ internal final class FileUploadManager {
 
         let payload = try Data(contentsOf: localUrl)
 
-        let preSignedURL = try await getPreSignedURL(at: localUrl, temporary: temporary, tags: tags, license: license)
+        let preSignedURL = try await getPreSignedURLs(at: localUrl, temporary: temporary, tags: tags, license: license)
 
-        let response = try await networking.put(url: preSignedURL, body: payload, headers: headers)
+        let response = try await networking.put(url: preSignedURL.uploadURL, body: payload, headers: headers)
 
         guard let httpResponse = response.1 as? HTTPURLResponse else {
             logger.error("\(NetworkingError.invalidHttpResponse.localizedDescription)")
@@ -76,7 +76,7 @@ internal final class FileUploadManager {
 
         logger.info("Successfully uploaded \(localUrl.lastPathComponent) to cloud storage")
 
-        let s3Link = try constructS3Link(from: preSignedURL)
+        let s3Link = try constructS3Link(from: preSignedURL.downloadURL)
         guard let s3URL = URL(string: s3Link) else {
             throw FileError.bucketNameNotFound
         }
@@ -111,11 +111,13 @@ internal final class FileUploadManager {
         guard let url = URL(string: url.absoluteString + endpoint.path) else {
             throw ModelError.invalidURL(url: url.absoluteString + endpoint.path)
         }
+        
+        let originalName = localUrl.lastPathComponent.replacingOccurrences(of: " ", with: "_")
 
         if temporary {
-            payload = ["contentType": localUrl.mimeType(), "originalName": localUrl.lastPathComponent]
+            payload = ["contentType": localUrl.mimeType(), "originalName": originalName]
         } else {
-            payload = ["contentType": localUrl.mimeType(), "originalName": localUrl.lastPathComponent, "tags": tags.map { "\($0.key),\($0.value)" }.joined(separator: "\n"), "license": license?.name ?? ""]
+            payload = ["contentType": localUrl.mimeType(), "originalName": originalName, "tags": tags.map { "\($0.key),\($0.value)" }.joined(separator: "\n"), "license": license?.name ?? ""]
         }
 
         guard let jsonPayload = try? JSONSerialization.data(withJSONObject: payload, options: []) else {
@@ -133,6 +135,55 @@ internal final class FileUploadManager {
                     throw FileError.couldNotGetTheS3PreSignedURL
                 }
                 return url
+            }
+        }
+
+        throw FileError.couldNotGetTheS3PreSignedURL
+    }
+    
+    
+    
+    
+    
+    public func getPreSignedURLs(at localUrl: URL, temporary: Bool = true, tags: [String: String] = [:], license: License? = nil) async throws -> (downloadURL: URL, uploadURL: URL) {
+        let headers: [String: String] = try networking.buildHeader()
+        var payload: [String: String] = [:]
+
+        guard let url = APIKeyManager.shared.BACKEND_URL else {
+            throw ModelError.missingBackendURL
+        }
+
+        let endpoint = Networking.Endpoint.fileUpload(isTemporary: temporary)
+        guard let url = URL(string: url.absoluteString + endpoint.path) else {
+            throw ModelError.invalidURL(url: url.absoluteString + endpoint.path)
+        }
+        
+        let originalName = localUrl.lastPathComponent.replacingOccurrences(of: " ", with: "_")
+
+        if temporary {
+            payload = ["contentType": localUrl.mimeType(), "originalName": originalName]
+        } else {
+            payload = ["contentType": localUrl.mimeType(), "originalName": originalName, "tags": tags.map { "\($0.key),\($0.value)" }.joined(separator: "\n"), "license": license?.name ?? ""]
+        }
+
+        guard let jsonPayload = try? JSONSerialization.data(withJSONObject: payload, options: []) else {
+            logger.error("Could not generate the payload to obtain the S3 Pre Signed URL: \(String(describing: payload))")
+            throw FileError.payloadGenerationFailed(description: String(describing: payload))
+        }
+
+        logger.debug("Creating a temp URL with the following payload:\(payload.description)")
+        let response = try await networking.post(url: url, headers: headers, body: jsonPayload)
+
+        if let json = try? JSONSerialization.jsonObject(with: response.0, options: []) as? [String: Any] {
+            if let uploadUrl = json["uploadUrl"] as? String, let downloadUrl = json["downloadUrl"] as? String {
+                logger.debug("Pre-Signed Download URL: \(uploadUrl)")
+                guard let purl = URL(string: uploadUrl) else {
+                    throw FileError.couldNotGetTheS3PreSignedURL
+                }
+                guard let durl = URL(string: downloadUrl) else {
+                    throw FileError.couldNotGetTheS3PreSignedURL
+                }
+                return (downloadURL:durl,uploadURL:purl)
             }
         }
 
@@ -174,7 +225,7 @@ internal final class FileUploadManager {
     /// - Parameter localURL: The local URL of the data to be uploaded if necessary.
     /// - Returns: The remote URL of the uploaded data.
     /// - Throws: Any error that may occur during the file upload process.
-    public  func uploadDataIfNeedIt(from url: URL) async throws -> URL {
+    public func uploadDataIfNeedIt(from url: URL) async throws -> URL {
         var url = url
         switch url.absoluteString {
         case let link where link.starts(with: "s3://"):
