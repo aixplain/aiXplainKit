@@ -25,7 +25,7 @@ import Foundation
 
 extension Dictionary: ModelInput where Key == String, Value == ModelInput {
     public func generateInputPayloadForModel() async throws -> Data {
-        var parsedSequence: [String:String] = [:]
+        var parsedSequence: [String: Any] = [:]
         let fileUploadManager = FileUploadManager()
 
         for (_, keyValuePair) in self.enumerated() {
@@ -37,13 +37,18 @@ extension Dictionary: ModelInput where Key == String, Value == ModelInput {
                 parsedSequence.updateValue(remoteURL.absoluteString.removingPercentEncoding ?? remoteURL.absoluteString, forKey: key)
             case let string as String:
                 parsedSequence.updateValue(string, forKey: key)
+            case let record as Record:
+                parsedSequence.updateValue([record.toDictionary()], forKey: key)
+            case let records as [Record]:
+                let dictArray = records.map { $0.toDictionary() }
+                parsedSequence.updateValue(dictArray, forKey: key)
             default:
                 throw ModelError.typeNotRecognizedWhileCreatingACombinedInput
             }
         }
 
         guard let jsonData = try? JSONSerialization.data(withJSONObject: parsedSequence, options: []) else {
-            throw ModelError.inputEncodingError 
+            throw ModelError.inputEncodingError
         }
 
         return jsonData
