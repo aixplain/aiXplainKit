@@ -26,7 +26,16 @@ import Foundation
 /// To discover the identifiers for new models, consult the aiXplain console or
 /// contact support.
 
-public enum EmbeddingModel{
+public enum EmbeddingModel:CaseIterable,Identifiable,Hashable{
+    public static var allCases: [EmbeddingModel] = [.SNOWFLAKE_ARCTIC_EMBED_M_LONG,
+                                                    .OPENAI_ADA002,
+                                                    .SNOWFLAKE_ARCTIC_EMBED_L_V2_0,
+                                                    .JINA_CLIP_V2_MULTIMODAL,
+                                                    .MULTILINGUAL_E5_LARGE,
+                                                    .BGE_M3,
+                                                    .AIXPLAIN_LEGAL_EMBEDDINGS]
+    
+    
     case SNOWFLAKE_ARCTIC_EMBED_M_LONG
     case OPENAI_ADA002
     case SNOWFLAKE_ARCTIC_EMBED_L_V2_0
@@ -60,6 +69,10 @@ public enum EmbeddingModel{
         case .custom(id: let id):
             return id
         }
+    }
+    
+    public var id:String {
+        modelId
     }
     
     /// Retrieves the underlying `Model` instance associated with the selected
