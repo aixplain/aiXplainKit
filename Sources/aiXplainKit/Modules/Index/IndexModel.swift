@@ -12,9 +12,13 @@ public class IndexModel:Model {
         super.init(id: id, name: name, description: description, supplier: supplier, pricing: pricing, hostedBy: hostedBy, developedBy: developedBy, networking: networking)
     }
     
-    public init(from model: Model){
+    public init?(from model: Model, bypass: Bool = false){
+        if model.function?.id != "search" || bypass {
+            return nil
+        }
         super.init(id: model.id, name: model.name, description: model.description, supplier: model.supplier, pricing: model.pricing, hostedBy: model.hostedBy, developedBy: model.developedBy, networking: model.networking)
     }
+    
     
     required public init(from decoder: Decoder) throws {
         try super.init(from: decoder)

@@ -27,7 +27,10 @@ public class IndexProvider {
             do{
                 let indexModel = try await ModelProvider().get(response.output)
                 
-                return IndexModel(from: indexModel)
+                guard let index = IndexModel(from: indexModel) else {
+                    throw IndexErrors.failedToCreateIndex(reason: String(describing: "Failed to initalize index from model \(indexModel.id)"))
+                }
+                return index
                 
             }catch{
                 throw IndexErrors.failedToCreateIndex(reason: String(describing: error))
