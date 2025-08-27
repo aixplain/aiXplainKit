@@ -225,7 +225,7 @@ public final class FileUploadManager {
     /// - Parameter localURL: The local URL of the data to be uploaded if necessary.
     /// - Returns: The remote URL of the uploaded data.
     /// - Throws: Any error that may occur during the file upload process.
-    public func uploadDataIfNeedIt(from url: URL) async throws -> URL {
+    public  func uploadDataIfNeedIt(from url: URL, temporary: Bool = true) async throws -> URL {
         var url = url
         switch url.absoluteString {
         case let link where link.starts(with: "s3://"):
@@ -236,9 +236,8 @@ public final class FileUploadManager {
             break
         default:
             let fileManager = FileUploadManager()
-            url = try await fileManager.uploadFile(at: url)
+            url = try await fileManager.uploadFile(at: url, temporary: temporary)
         }
         return url
     }
-
 }
