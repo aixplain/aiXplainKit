@@ -257,6 +257,7 @@ extension Model {
             let response = try await networking.get(url: url, headers: headers)
 
             logger.debug("(\(itr)/\(maxRetry))Polling...")
+            print("Pooling JSON: \(String(data:response.0,encoding:.utf8))")
             if let json = try? JSONSerialization.jsonObject(with: response.0, options: []) as? [String: Any],
                let completed = json["completed"] as? Bool {
 
