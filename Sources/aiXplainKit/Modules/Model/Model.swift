@@ -79,6 +79,8 @@ public class Model:Codable, CustomStringConvertible {
     
     /// The organization or individual who developed the model.
     public let developedBy: String
+    
+    public var supportsStreaming:Bool = false
 
     /// Parameters that can be passed to the model during execution
     public let parameters: [ModelParameter]
@@ -135,6 +137,8 @@ public class Model:Codable, CustomStringConvertible {
         
         function = try? container.decodeIfPresent(Function.self, forKey: .function)
         
+        supportsStreaming = (try? container.decodeIfPresent(Bool.self, forKey: .supportsStreaming)) ?? false
+        
         privacy = nil
         license = nil
         logger = Logger(subsystem: "AiXplain", category: "Model(\(name)")
@@ -190,7 +194,7 @@ public class Model:Codable, CustomStringConvertible {
 
     // Private enum for coding keys to improve readability and maintainability.
     private enum CodingKeys: String, CodingKey {
-        case id, name, description, supplier, version, license, privacy, pricing, hostedBy, developedBy, params, function
+        case id, name, description, supplier, version, license, privacy, pricing, hostedBy, developedBy, params, function, supportsStreaming
     }
 }
 
