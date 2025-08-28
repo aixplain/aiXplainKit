@@ -8,8 +8,8 @@
 import Foundation
 
 public struct AgentSession:CustomStringConvertible {
-    var id: String = UUID().uuidString
-    var timestamp: Date = Date()
+    public var id: String = UUID().uuidString
+    public var timestamp: Date = Date()
     
     public var description: String {
         return id
