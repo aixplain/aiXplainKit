@@ -9,23 +9,23 @@ import Foundation
  
 extension Agent{
     //TODO: do this
-    public func createSession() async throws -> AgentSession {
-        var session = AgentSession()
+    public func createSession() async throws -> String {
+        var session = self.id + "_" + UUID().uuidString
         let headers = try self.networking.buildHeader()
-
+        
         let payload: [String: Any] = [
-                "id": self.id,
-                "query": "/",
-                "sessionId": session.id,
-                "history": [],
-                "executionParams": [
-                    "maxTokens": 2048,
-                    "maxIterations": 10,
-                    "outputFormat": "TEXT",
-                    "expectedOutput": NSNull()
-                ],
-                "allowHistoryAndSessionId": true
-            ]
+            "id": self.id,
+            "query": "/",
+            "sessionId": session,
+            "history": [],
+            "executionParams": [
+                "maxTokens": 2048,
+                "maxIterations": 10,
+                "outputFormat": "TEXT",
+                "expectedOutput": NSNull()
+            ],
+            "allowHistoryAndSessionId": true
+        ]
         
         
         guard let backendURL = APIKeyManager.shared.BACKEND_URL else {
@@ -45,8 +45,8 @@ extension Agent{
            httpResponse.statusCode != 201 {
             throw NetworkingError.invalidStatusCode(statusCode: httpResponse.statusCode)
         }
-
-        return AgentSession()
+        
+        return session
     }
     
     
