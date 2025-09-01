@@ -53,7 +53,8 @@ extension AgentOutput {
 
 // MARK: - DataClass
 public struct DataClass: Codable {
-    public let input, output, sessionID: String
+    public let input, output: String
+    public let sessionID: String?
     public let intermediateSteps: [IntermediateStep]
 
     enum CodingKeys: String, CodingKey {
@@ -84,7 +85,7 @@ extension DataClass {
     func with(
         input: String? = nil,
         output: String? = nil,
-        sessionID: String? = nil,
+        sessionID: String?? = nil,
         intermediateSteps: [IntermediateStep]? = nil
     ) -> DataClass {
         return DataClass(

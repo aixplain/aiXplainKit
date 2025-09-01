@@ -8,7 +8,7 @@
 import Foundation
 struct AgentExecuteResponse:Decodable{
     let requestId:String
-    let sessionId:String
+    let sessionId:String?
     let data:String
     
     var maybeUrl:URL?{
