@@ -1,33 +1,49 @@
 # ``aiXplainKit``
 
-aiXplainKit enables Swift programmers to add AI functions to their software with ease.
+aiXplainKit v2 -- Swift SDK for the aiXplain AI platform.
 
 ## Overview
 
-aiXplainKit is a software development kit (SDK) for the [aiXplain](https://aixplain.com/) platform. With aiXplainKit, developers can quickly and easily:
+aiXplainKit enables Swift developers to integrate aiXplain's AI capabilities into their applications. The v2 SDK provides a clean, typed API aligned with the [aiXplain Python SDK v2](https://github.com/aixplain/aiXplain/tree/main/aixplain/v2).
 
-- [Discover](https://aixplain.com/platform/discovery/) aiXplain’s ever-expanding catalog of 35,000+ ready-to-use AI models and utilize them.
-- [Design](https://aixplain.com/platform/studio/) their own custom pipelines and run them.
-
-
-## API Key Setup
-Before you can use the aixplain SDK, you'll need to obtain an API key from our platform. For details refer this [Team API Key Guide<MISSING>](<doc:TeamAPIKeyGuide>).
-
-Once you get the API key, you'll  need to add this API key as an environment variable on your system.
+## Quick Start
 
 ```swift
-AiXplainKit.shared.keyManager.TEAM_API_KEY = "<Your Key>"
-```
+import aiXplainKit
 
-Alternatively, you can set the API key as an environment variable in Xcode. This approach keeps your API key separate from your code, which can be beneficial for security and portability. Check on how to do this on the ``APIKeyManager``
+// Initialize with your API key
+let aix = try Aixplain(apiKey: "your-team-api-key")
+
+// Run a model
+let model = try await Model.get("model-id", context: aix)
+let result = try await model.run(text: "Translate this to French")
+
+// Run an agent
+let agent = try await Agent.get("agent-id", context: aix)
+let agentResult = try await agent.run("What can you help me with?")
+print(agentResult.data?.output ?? "")
+```
 
 ## Topics
 
-### Essential
-- <doc:TeamAPIKeyGuide>
-- <doc:PipelineEssential>
-- <doc:DiscoverEssential>
+### Entry Point
+- ``Aixplain``
 
-### Tutorial
-- <doc:aiXplain101>
+### Authentication
+- ``Credential``
+- ``AuthenticationScheme``
 
+### Client
+- ``AixplainClient``
+- ``ClientConfiguration``
+
+### Resources
+- ``Agent``
+- ``Model``
+- ``Tool``
+- ``Integration``
+- ``Index``
+
+### Errors
+- ``AixplainError``
+- ``APIError``
